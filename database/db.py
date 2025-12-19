@@ -1,8 +1,9 @@
 import os
 from sqlmodel import Session, SQLModel, create_engine
 
-# Database URL
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./inventario.db")
+# Database URL - usar /data para Railway volume sharing
+DB_PATH = os.getenv("DB_PATH", "./inventario.db")
+DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 # Create engine
 engine = create_engine(
