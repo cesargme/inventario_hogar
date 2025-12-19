@@ -119,9 +119,25 @@ async def get_manifest():
 
 
 @app.get("/health")
-async def health_check():
+async def health_check(session: Session = Depends(get_session)):
     """Health check para Railway"""
-    return {"status": "ok"}
+    import os
+    from database.models import Section, Item, User
+
+    # Contar registros
+    sections_count = len(session.exec(select(Section)).all())
+    items_count = len(session.exec(select(Item)).all())
+    users_count = len(session.exec(select(User)).all())
+
+    return {
+        "status": "ok",
+        "database": {
+            "path": os.getenv("DB_PATH", "./inventario.db"),
+            "sections": sections_count,
+            "items": items_count,
+            "users": users_count,
+        }
+    }
 
 
 if __name__ == "__main__":
