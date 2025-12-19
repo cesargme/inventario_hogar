@@ -1,0 +1,46 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#F5F5DC"/>
+
+  <!-- Basket base -->
+  <path d="M140 280 L372 280 L340 420 C338 430 330 440 320 440 L192 440 C182 440 174 430 172 420 Z"
+        fill="#8B4513" stroke="#6B4513" stroke-width="3"/>
+
+  <!-- Basket weave pattern -->
+  <line x1="160" y1="300" x2="352" y2="300" stroke="#6B4513" stroke-width="2"/>
+  <line x1="165" y1="330" x2="347" y2="330" stroke="#6B4513" stroke-width="2"/>
+  <line x1="170" y1="360" x2="342" y2="360" stroke="#6B4513" stroke-width="2"/>
+  <line x1="175" y1="390" x2="337" y2="390" stroke="#6B4513" stroke-width="2"/>
+
+  <!-- Vertical weave -->
+  <line x1="190" y1="280" x2="180" y2="440" stroke="#6B4513" stroke-width="2"/>
+  <line x1="256" y1="280" x2="256" y2="440" stroke="#6B4513" stroke-width="2"/>
+  <line x1="322" y1="280" x2="332" y2="440" stroke="#6B4513" stroke-width="2"/>
+
+  <!-- Apple (red-ish brown) -->
+  <circle cx="200" cy="200" r="45" fill="#A0522D"/>
+  <path d="M200 155 Q195 145 200 140" stroke="#6B4513" stroke-width="3" fill="none"/>
+  <ellipse cx="205" cy="175" rx="8" ry="12" fill="#C19A6B" opacity="0.3"/>
+
+  <!-- Carrot (orange-brown) -->
+  <path d="M300 240 L320 180 L310 240 Z" fill="#D2691E"/>
+  <path d="M310 240 L330 185 L320 240 Z" fill="#CD853F"/>
+  <line x1="315" y1="175" x2="310" y2="155" stroke="#6B8E23" stroke-width="3"/>
+  <line x1="320" y1="175" x2="320" y2="150" stroke="#6B8E23" stroke-width="3"/>
+  <line x1="325" y1="178" x2="328" y2="158" stroke="#6B8E23" stroke-width="3"/>
+
+  <!-- Bread loaf -->
+  <ellipse cx="256" cy="230" rx="50" ry="35" fill="#D2B48C"/>
+  <path d="M220 215 Q256 200 292 215" stroke="#A0826D" stroke-width="2" fill="none"/>
+  <path d="M230 225 Q256 218 282 225" stroke="#A0826D" stroke-width="1.5" fill="none"/>
+
+  <!-- Leaf accent (green) -->
+  <path d="M180 160 Q170 145 175 135 Q180 145 190 145 Q185 150 180 160"
+        fill="#6B8E23"/>
+
+  <!-- Basket handle -->
+  <path d="M140 280 Q256 120 372 280"
+        stroke="#8B4513" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M140 280 Q256 125 372 280"
+        stroke="#6B4513" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>
