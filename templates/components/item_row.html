@@ -1,0 +1,28 @@
+<!-- Row individual de item -->
+<div class="bg-white rounded-lg p-4 shadow-sm border-l-4 {% if item.is_below_threshold %}border-red-500{% else %}border-secondary{% endif %}">
+    <div class="flex items-start justify-between">
+        <!-- Info principal -->
+        <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="text-2xl">{{ item.emoji }}</span>
+                <h3 class="text-lg font-semibold">{{ item.name|title }}</h3>
+                {% if item.is_below_threshold %}
+                <span class="text-red-500 text-sm font-bold">⚠️ BAJO</span>
+                {% endif %}
+            </div>
+
+            <div class="text-sm text-gray-600 space-y-1">
+                <p class="font-medium text-lg">
+                    {{ item.quantity }} {{ item.unit }}
+                </p>
+                <p class="flex items-center gap-1">
+                    <span class="text-gray-500">{{ item.section_emoji }}</span>
+                    <span>{{ item.section_name }}</span>
+                </p>
+                <p class="text-xs text-gray-400">
+                    Actualizado {{ item.updated_at_human }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

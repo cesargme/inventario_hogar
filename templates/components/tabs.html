@@ -1,0 +1,40 @@
+<!-- Bottom Tabs - Fixed at bottom -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg">
+    <div class="flex">
+        <!-- Tab Procesar -->
+        <button
+            hx-get="/app/process"
+            hx-target="#tab-content"
+            hx-swap="innerHTML"
+            class="flex-1 py-3 text-center border-r border-gray-200 hover:bg-gray-100 transition-colors"
+            id="tab-process">
+            <div class="text-2xl">🏠</div>
+            <div class="text-xs font-medium">Procesar</div>
+        </button>
+
+        <!-- Tab Ver Inventario -->
+        <button
+            hx-get="/app/inventory"
+            hx-target="#tab-content"
+            hx-swap="innerHTML"
+            class="flex-1 py-3 text-center hover:bg-gray-100 transition-colors"
+            id="tab-inventory">
+            <div class="text-2xl">📦</div>
+            <div class="text-xs font-medium">Ver</div>
+        </button>
+    </div>
+</nav>
+
+<script>
+    // Marcar tab activo
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        document.querySelectorAll('nav button').forEach(btn => {
+            btn.classList.remove('bg-primary', 'text-white');
+        });
+
+        if (evt.detail.target.id === 'tab-content') {
+            const activeTab = evt.detail.elt;
+            activeTab.classList.add('bg-primary', 'text-white');
+        }
+    });
+</script>

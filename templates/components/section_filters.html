@@ -1,0 +1,39 @@
+<!-- Filtros de secciones con emojis -->
+<div class="flex overflow-x-auto gap-2 pb-2">
+    <!-- Todas las secciones -->
+    <button
+        hx-get="/app/inventory"
+        hx-target="#items-list"
+        hx-swap="innerHTML"
+        class="filter-btn flex-shrink-0 bg-white border-2 border-primary rounded-lg px-4 py-3 text-center hover:bg-primary hover:text-white transition-all min-w-[100px]">
+        <div class="text-2xl">➕</div>
+        <div class="text-xs font-medium mt-1">Todos</div>
+    </button>
+
+    {% for section in sections %}
+    <button
+        hx-get="/app/inventory?section_id={{ section.id }}"
+        hx-target="#items-list"
+        hx-swap="innerHTML"
+        class="filter-btn flex-shrink-0 bg-white border-2 border-gray-300 rounded-lg px-4 py-3 text-center hover:bg-primary hover:text-white hover:border-primary transition-all min-w-[100px]">
+        <div class="text-2xl">{{ section.emoji }}</div>
+        <div class="text-xs font-medium mt-1">{{ section.name }}</div>
+    </button>
+    {% endfor %}
+</div>
+
+<script>
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        if (evt.detail.target.id === 'items-list') {
+            // Resetear estilos de botones
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white', 'border-primary');
+                btn.classList.add('bg-white', 'border-gray-300');
+            });
+
+            // Marcar activo
+            evt.detail.elt.classList.add('bg-primary', 'text-white', 'border-primary');
+            evt.detail.elt.classList.remove('bg-white', 'border-gray-300');
+        }
+    });
+</script>

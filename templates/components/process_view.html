@@ -1,0 +1,33 @@
+<!-- Vista de Procesamiento de Texto -->
+<div class="max-w-2xl mx-auto">
+    <h2 class="text-xl font-semibold mb-4 text-primary">Dicta tus cambios</h2>
+
+    <form
+        hx-post="/process/text"
+        hx-target="#feedback"
+        hx-swap="innerHTML"
+        hx-indicator="#loading"
+        class="space-y-4">
+
+        <!-- Textarea grande para dictar -->
+        <textarea
+            name="text"
+            rows="15"
+            placeholder="Ejemplo: Agregué 2 kilos de arroz al almacén 1 y quedan 3 huevos en el refrigerador..."
+            class="w-full p-4 border-2 border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary resize-none"
+            required></textarea>
+
+        <!-- Botón procesar -->
+        <button
+            type="submit"
+            class="w-full bg-primary text-white py-4 rounded-lg font-semibold text-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-2">
+            🎤 Procesar Texto
+            <div id="loading" class="htmx-indicator">
+                {% include 'components/loading.html' %}
+            </div>
+        </button>
+    </form>
+
+    <!-- Feedback de cambios -->
+    <div id="feedback" class="mt-6"></div>
+</div>
