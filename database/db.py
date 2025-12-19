@@ -1,14 +1,20 @@
 import os
 from sqlmodel import Session, SQLModel, create_engine
 
-# Database URL - usar /data para Railway volume sharing
-DB_PATH = os.getenv("DB_PATH", "./inventario.db")
-DATABASE_URL = f"sqlite:///{DB_PATH}"
+# Database URL - PostgreSQL para Railway, SQLite para local
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///./inventario.db"  # Fallback a SQLite para desarrollo local
+)
 
-# Create engine
+# Create engine - diferentes connect_args para SQLite vs PostgreSQL
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False},  # Necesario para SQLite
+    connect_args=connect_args,
     echo=False,  # Desactivar logs SQL para evitar problemas de encoding
 )
 
