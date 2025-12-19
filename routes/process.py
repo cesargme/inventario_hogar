@@ -19,28 +19,27 @@ templates = Jinja2Templates(directory="templates")
 SYSTEM_PROMPT = """Eres un asistente para gestionar inventario de alimentos.
 El usuario dictará comandos por voz para actualizar su inventario.
 
+IMPORTANTE: Cuando el usuario mencione un item, SIEMPRE usa "create_item" porque NO sabes si existe o no en la base de datos.
+
 Debes devolver un array JSON con los comandos a ejecutar. Formato:
 
 [
-  {"action": "add", "item": "leche", "quantity": 2, "unit": "L"},
-  {"action": "set", "item": "huevos", "quantity": 6, "unit": "unidades"},
-  {"action": "create_item", "item": "yogurt", "quantity": 4, "unit": "unidades", "section": "refrigerador", "emoji": "🥛", "threshold": 2},
-  {"action": "create_section", "section": "congelador", "emoji": "❄️"},
-  {"action": "remove", "item": "arroz_viejo"}
+  {"action": "create_item", "item": "leche", "quantity": 2, "unit": "L", "section": "refrigerador", "emoji": "🥛", "threshold": 1},
+  {"action": "create_item", "item": "huevos", "quantity": 6, "unit": "unidades", "section": "refrigerador", "emoji": "🥚", "threshold": 3},
+  {"action": "create_item", "item": "arroz", "quantity": 2, "unit": "kg", "section": "almacen 1", "emoji": "🍚", "threshold": 1}
 ]
 
 Acciones disponibles:
-- add: suma cantidad a item existente
-- set: establece cantidad exacta
-- remove: elimina item
-- create_item: crea nuevo item (infiere emoji, sección, umbral razonable)
+- create_item: SIEMPRE usa esta acción para cualquier item mencionado. Si el item ya existe, se actualizará automáticamente.
 - create_section: crea nueva sección (infiere emoji)
 
 Reglas:
-- Nombres en minúsculas sin tildes
-- Inferir unidades apropiadas (kg, L, unidades, etc)
-- Emojis apropiados para cada item/sección
-- Secciones comunes: refrigerador, almacén 1, almacén 2, congelador, despensa
+- SIEMPRE usa "create_item" para todos los items mencionados
+- Nombres en minúsculas sin tildes (huevos, leche, arroz, etc)
+- Inferir unidades apropiadas (kg, L, unidades, gramos, etc)
+- Emojis apropiados para cada item (🥛 leche, 🥚 huevos, 🍚 arroz, 🥖 pan, etc)
+- Secciones comunes: refrigerador, almacen 1, almacen 2, congelador, despensa
+- Threshold razonable (1-3 unidades generalmente)
 
 Responde SOLO con el JSON, sin texto adicional."""
 
@@ -114,32 +113,44 @@ async def process_text(
                     errors.append(f"Item '{cmd['item']}' no existe")
 
             elif action == "create_item":
-                # Buscar sección
-                section_name = cmd.get("section", "almacén 1")
-                section = find_section_by_name(session, section_name)
+                # Buscar si el item ya existe
+                existing_item = find_item_by_name(session, cmd["item"])
 
-                if not section:
-                    # Crear sección si no existe
-                    section = Section(
-                        name=section_name.title(),
-                        emoji=cmd.get("section_emoji", "📦"),
+                if existing_item:
+                    # Actualizar item existente
+                    old_qty = existing_item.quantity
+                    existing_item.quantity = cmd.get("quantity", existing_item.quantity)
+                    existing_item.updated_at = datetime.utcnow()
+                    changes.append(
+                        f"Actualizado: {existing_item.emoji} {existing_item.name} {old_qty} → {existing_item.quantity} {existing_item.unit}"
                     )
-                    session.add(section)
-                    session.flush()
+                else:
+                    # Buscar sección
+                    section_name = cmd.get("section", "almacen 1")
+                    section = find_section_by_name(session, section_name)
 
-                # Crear item
-                new_item = Item(
-                    name=cmd["item"],
-                    emoji=cmd.get("emoji", "🍽️"),
-                    quantity=cmd.get("quantity", 0),
-                    unit=cmd.get("unit", "unidades"),
-                    threshold=cmd.get("threshold", 1),
-                    section_id=section.id,
-                )
-                session.add(new_item)
-                changes.append(
-                    f"Creado: {new_item.emoji} {new_item.name} ({new_item.quantity} {new_item.unit}) en {section.name}"
-                )
+                    if not section:
+                        # Crear sección si no existe
+                        section = Section(
+                            name=section_name.title(),
+                            emoji=cmd.get("section_emoji", "📦"),
+                        )
+                        session.add(section)
+                        session.flush()
+
+                    # Crear item nuevo
+                    new_item = Item(
+                        name=cmd["item"],
+                        emoji=cmd.get("emoji", "🍽️"),
+                        quantity=cmd.get("quantity", 0),
+                        unit=cmd.get("unit", "unidades"),
+                        threshold=cmd.get("threshold", 1),
+                        section_id=section.id,
+                    )
+                    session.add(new_item)
+                    changes.append(
+                        f"Creado: {new_item.emoji} {new_item.name} ({new_item.quantity} {new_item.unit}) en {section.name}"
+                    )
 
             elif action == "create_section":
                 section_name = cmd.get("section", "")
