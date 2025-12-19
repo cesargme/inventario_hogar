@@ -9,8 +9,8 @@ APP_VERSION = "0.1.0"
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
 # Auth
-USERNAME = os.getenv("USERNAME", "admin")
-PASSWORD = os.getenv("PASSWORD", "admin")
+USERNAME = os.getenv("APP_USERNAME", "admin")
+PASSWORD = os.getenv("APP_PASSWORD", "admin")
 
 # OpenRouter API
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")

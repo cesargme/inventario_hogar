@@ -5,7 +5,7 @@
         hx-get="/app/inventory"
         hx-target="#items-list"
         hx-swap="innerHTML"
-        class="filter-btn flex-shrink-0 bg-white border-2 border-primary rounded-lg px-4 py-3 text-center hover:bg-primary hover:text-white transition-all min-w-[100px]">
+        class="filter-btn flex-shrink-0 border-2 border-primary rounded-lg px-4 py-3 text-center hover:bg-primary hover:text-white transition-all min-w-[100px]">
         <div class="text-2xl">➕</div>
         <div class="text-xs font-medium mt-1">Todos</div>
     </button>
@@ -15,7 +15,7 @@
         hx-get="/app/inventory?section_id={{ section.id }}"
         hx-target="#items-list"
         hx-swap="innerHTML"
-        class="filter-btn flex-shrink-0 bg-white border-2 border-gray-300 rounded-lg px-4 py-3 text-center hover:bg-primary hover:text-white hover:border-primary transition-all min-w-[100px]">
+        class="filter-btn flex-shrink-0 border-2 border-gray-300 rounded-lg px-4 py-3 text-center hover:bg-primary hover:text-white hover:border-primary transition-all min-w-[100px]">
         <div class="text-2xl">{{ section.emoji }}</div>
         <div class="text-xs font-medium mt-1">{{ section.name }}</div>
     </button>

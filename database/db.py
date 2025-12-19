@@ -35,8 +35,8 @@ def init_db():
 
     with Session(engine) as session:
         # Crear usuario si no existe
-        username = os.getenv("USERNAME", "admin")
-        password = os.getenv("PASSWORD", "admin")
+        username = os.getenv("APP_USERNAME", "admin")
+        password = os.getenv("APP_PASSWORD", "admin")
 
         existing_user = session.query(User).filter(User.username == username).first()
         if not existing_user:
