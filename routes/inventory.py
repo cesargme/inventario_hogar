@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 
 from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import HTMLResponse
@@ -110,3 +111,31 @@ async def get_items_paginated(
             "has_more": has_more,
         }
     )
+
+
+@router.get("/api/context", response_class=HTMLResponse)
+async def get_context(
+    user: User = Depends(verify_credentials),
+    session: Session = Depends(get_session),
+):
+    """
+    Retorna <script> con contexto completo para el LLM
+    Se carga asíncronamente al entrar a la app
+    """
+    sections = session.exec(select(Section)).all()
+    items = session.exec(select(Item)).all()
+
+    context_data = {
+        "sections": [{"id": s.id, "name": s.name, "emoji": s.emoji} for s in sections],
+        "items": [{"id": i.id, "name": i.name, "section_id": i.section_id} for i in items]
+    }
+
+    context_json = json.dumps(context_data, ensure_ascii=False)
+
+    return f"""
+<script>
+    window.inventoryContext = {context_json};
+    window.contextLoaded = true;
+    console.log('Contexto del inventario cargado:', window.inventoryContext);
+</script>
+"""

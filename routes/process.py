@@ -48,13 +48,26 @@ Responde SOLO con el JSON, sin texto adicional."""
 async def process_text(
     request: Request,
     text: str = Form(...),
+    context: str = Form(None),
     user: User = Depends(verify_credentials),
     session: Session = Depends(get_session),
 ):
     """Procesa texto dictado y ejecuta comandos LLM"""
 
-    # Llamar LLM
-    llm_input = f"{SYSTEM_PROMPT}\n\nUsuario dice: {text}"
+    # Preparar contexto para el LLM
+    context_info = ""
+    if context:
+        try:
+            import json
+            context_data = json.loads(context)
+            sections_list = ", ".join([s['name'] for s in context_data.get('sections', [])])
+            items_list = ", ".join([i['name'] for i in context_data.get('items', [])])
+            context_info = f"\n\nContexto actual del inventario:\n- Secciones disponibles: {sections_list}\n- Items existentes: {items_list}"
+        except:
+            pass  # Si falla el parseo, continuar sin contexto
+
+    # Llamar LLM con contexto
+    llm_input = f"{SYSTEM_PROMPT}{context_info}\n\nUsuario dice: {text}"
     llm_response = prompt(llm_input)
 
     # Parsear comandos

@@ -73,11 +73,17 @@
         // Marcar inventario como no cargado para forzar recarga
         tabCache.loaded.inventory = false;
 
-        // Recargar contenido del tab inventario si está visible
-        const inventoryView = document.getElementById('view-inventory');
-        if (!inventoryView.classList.contains('hidden')) {
-            loadTabContent('inventory', true);
-        }
+        // Invalidar contexto para que se recargue
+        window.contextLoaded = false;
+
+        // Recargar contexto inmediatamente
+        htmx.ajax('GET', '/inventory/api/context', {
+            target: 'body',
+            swap: 'beforeend'
+        });
+
+        // Recargar inventario siempre (aunque no esté visible)
+        loadTabContent('inventory', true);
     });
 
     // Precargar inventario en background después de que cargue la página
