@@ -8,7 +8,7 @@ from sqlmodel import Session
 from auth.basic import verify_credentials
 from database.db import get_session
 from database.models import Item, Section, User
-from routes.inventory import find_item_by_name, find_section_by_name
+from database.queries import find_item_by_name, find_section_by_name
 from utils.llm import prompt
 from utils.parsers import parse_llm_commands
 

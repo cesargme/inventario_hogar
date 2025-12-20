@@ -29,4 +29,4 @@ Click en "Ver" nuevamente → Cambia instantáneamente SIN spinner, mostrando lo
 - [ ] cambiar de emoji y nombre de seccion
 - [ ] eliminar seccion solo si esta vacio, muevelos!
 - [ ] acelerar el query y esto
-- 
+- [ ] optimizar con cacheado el filtrado segun seccion

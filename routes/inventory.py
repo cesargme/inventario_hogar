@@ -9,7 +9,8 @@ from auth.basic import verify_credentials
 from config.settings import ITEMS_PER_PAGE
 from database.db import get_session
 from database.models import Item, Section, User
-from utils.time import humanize_time
+from database.queries import find_item_by_name, find_section_by_name
+from utils.serializers import serialize_items_for_template
 
 router = APIRouter(prefix="/inventory", tags=["inventory"])
 templates = Jinja2Templates(directory="templates")
@@ -73,18 +74,6 @@ async def list_sections(
     }
 
 
-def find_item_by_name(session: Session, name: str) -> Item | None:
-    """Busca item por nombre (case-insensitive)"""
-    statement = select(Item).where(func.lower(Item.name) == name.lower())
-    return session.exec(statement).first()
-
-
-def find_section_by_name(session: Session, name: str) -> Section | None:
-    """Busca sección por nombre (case-insensitive)"""
-    statement = select(Section).where(func.lower(Section.name) == name.lower())
-    return session.exec(statement).first()
-
-
 @router.get("/api/items", response_class=HTMLResponse)
 async def get_items_paginated(
     request: Request,
@@ -106,20 +95,10 @@ async def get_items_paginated(
     items = session.exec(stmt).all()
 
     # Preparar data para template
-    items_data = [
-        {
-            "id": item.id,
-            "name": item.name,
-            "emoji": item.emoji,
-            "quantity": item.quantity,
-            "unit": item.unit,
-            "section_emoji": item.section.emoji,
-            "section_name": item.section.name,
-            "updated_at_human": humanize_time(item.updated_at),
-            "is_below_threshold": item.is_below_threshold,
-        }
-        for item in items
-    ]
+    items_data = serialize_items_for_template(items)
+
+    # Determinar si hay más items por cargar
+    has_more = len(items) == limit
 
     return templates.TemplateResponse(
         "components/items_list.html",
@@ -128,5 +107,6 @@ async def get_items_paginated(
             "items": items_data,
             "offset": offset + limit,
             "section_id": section_id,
+            "has_more": has_more,
         }
     )

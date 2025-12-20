@@ -12,7 +12,7 @@ from database.db import init_db, get_session
 from database.models import User
 from routes import inventory, process
 from sqlmodel import Session, select
-from utils.time import humanize_time
+from utils.serializers import serialize_items_for_template, serialize_sections_for_template
 
 
 @asynccontextmanager
@@ -82,29 +82,8 @@ async def app_inventory_view(
     items = session.exec(items_stmt).all()
 
     # Preparar data para template
-    items_data = [
-        {
-            "id": item.id,
-            "name": item.name,
-            "emoji": item.emoji,
-            "quantity": item.quantity,
-            "unit": item.unit,
-            "section_emoji": item.section.emoji,
-            "section_name": item.section.name,
-            "updated_at_human": humanize_time(item.updated_at),
-            "is_below_threshold": item.is_below_threshold,
-        }
-        for item in items
-    ]
-
-    sections_data = [
-        {
-            "id": section.id,
-            "name": section.name,
-            "emoji": section.emoji,
-        }
-        for section in sections
-    ]
+    items_data = serialize_items_for_template(items)
+    sections_data = serialize_sections_for_template(sections)
 
     return templates.TemplateResponse(
         "components/inventory_view.html",

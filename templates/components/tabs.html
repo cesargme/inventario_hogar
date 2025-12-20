@@ -28,6 +28,26 @@
         loading: { process: false, inventory: false }
     };
 
+    /**
+     * Carga contenido de un tab via HTMX
+     * @param {string} tabName - Nombre del tab ('process' o 'inventory')
+     * @param {boolean} forceReload - Si true, ignora el cache
+     */
+    function loadTabContent(tabName, forceReload = false) {
+        if (forceReload || (!tabCache.loaded[tabName] && !tabCache.loading[tabName])) {
+            tabCache.loading[tabName] = true;
+
+            return htmx.ajax('GET', '/app/' + tabName, {
+                target: '#view-' + tabName,
+                swap: 'innerHTML'
+            }).then(() => {
+                tabCache.loaded[tabName] = true;
+                tabCache.loading[tabName] = false;
+            });
+        }
+        return Promise.resolve();
+    }
+
     function switchTab(tabName) {
         // Ocultar todos los tabs
         document.getElementById('view-process').classList.add('hidden');
@@ -45,17 +65,7 @@
         targetView.classList.remove('hidden');
 
         // Cargar contenido si no está cacheado
-        if (!tabCache.loaded[tabName] && !tabCache.loading[tabName]) {
-            tabCache.loading[tabName] = true;
-
-            htmx.ajax('GET', '/app/' + tabName, {
-                target: '#view-' + tabName,
-                swap: 'innerHTML'
-            }).then(() => {
-                tabCache.loaded[tabName] = true;
-                tabCache.loading[tabName] = false;
-            });
-        }
+        loadTabContent(tabName);
     }
 
     // Escuchar evento de invalidación de cache del inventario
@@ -66,12 +76,7 @@
         // Recargar contenido del tab inventario si está visible
         const inventoryView = document.getElementById('view-inventory');
         if (!inventoryView.classList.contains('hidden')) {
-            htmx.ajax('GET', '/app/inventory', {
-                target: '#view-inventory',
-                swap: 'innerHTML'
-            }).then(() => {
-                tabCache.loaded.inventory = true;
-            });
+            loadTabContent('inventory', true);
         }
     });
 
@@ -79,16 +84,7 @@
     window.addEventListener('load', function() {
         // Esperar 500ms para no bloquear la carga inicial del tab "Procesar"
         setTimeout(function() {
-            if (!tabCache.loaded.inventory && !tabCache.loading.inventory) {
-                tabCache.loading.inventory = true;
-                htmx.ajax('GET', '/app/inventory', {
-                    target: '#view-inventory',
-                    swap: 'innerHTML'
-                }).then(() => {
-                    tabCache.loaded.inventory = true;
-                    tabCache.loading.inventory = false;
-                });
-            }
+            loadTabContent('inventory');
         }, 500);
     });
 </script>

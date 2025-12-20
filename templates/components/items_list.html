@@ -3,14 +3,15 @@
     {% include 'components/item_row.html' %}
 {% endfor %}
 
-<!-- Trigger para infinite scroll (solo si hay items para cargar) -->
-{% if items|length >= 5 %}
+<!-- Trigger para infinite scroll (solo si hay más items por cargar) -->
+{% if has_more %}
 <div hx-get="/inventory/api/items?offset={{ offset }}{% if section_id %}&section_id={{ section_id }}{% endif %}"
      hx-trigger="intersect once"
      hx-swap="outerHTML">
     <!-- Skeleton placeholders mientras carga -->
-    {% include 'components/item_skeleton.html' %}
-    {% include 'components/item_skeleton.html' %}
+    {% for _ in range(2) %}
+        {% include 'components/item_skeleton.html' %}
+    {% endfor %}
 </div>
 {% endif %}
 
