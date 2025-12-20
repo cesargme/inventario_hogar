@@ -33,12 +33,4 @@
             class="text-sm text-blue-600 hover:text-blue-800 mt-2 underline">
         Ver historial
     </button>
-
-    {#-- Preload history in background --#}
-{%- set history_url = "/inventory/api/item/" ~ item.id ~ "/history?offset=0" -%}
-{%- set preload_label = "history-item-" ~ item.id -%}
-    <ui.BackgroundLoader
-        :url="history_url"
-        delay="1s"
-        :label="preload_label" />
 </div>

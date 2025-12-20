@@ -36,8 +36,10 @@ const ModalCache = {
 function openHistoryModal(itemId) {
     const cached = ModalCache.get(`history-${itemId}`);
     if (cached) {
+        console.log(`[MODAL_CACHE] Opening from cache: history-${itemId}`);
         document.getElementById('modal-container').innerHTML = cached;
     } else {
+        console.log(`[MODAL_CACHE] Not in cache, fetching: history-${itemId}`);
         htmx.ajax('GET', `/inventory/item/${itemId}/history-view`, {
             target: '#modal-container',
             swap: 'innerHTML'
@@ -53,6 +55,62 @@ function closeHistoryModal() {
     }
     modal.innerHTML = '';
 }
+
+// LAZY_LOADING_SYSTEM: Track preloading to avoid duplicates
+const preloadingSet = new Set();
+
+// LAZY_LOADING_SYSTEM: Preload visible item histories
+function preloadVisibleHistories() {
+    const itemCards = document.querySelectorAll('#items-container .bg-white');
+    console.log(`[LAZY_LOADING_SYSTEM] Found ${itemCards.length} item cards to preload`);
+
+    let preloadIndex = 0;
+    itemCards.forEach((card) => {
+        const button = card.querySelector('button[onclick^="openHistoryModal"]');
+        if (button) {
+            const match = button.getAttribute('onclick').match(/openHistoryModal\((\d+)\)/);
+            if (match) {
+                const itemId = match[1];
+                // Skip if already cached or currently preloading
+                if (!ModalCache.get(`history-${itemId}`) && !preloadingSet.has(itemId)) {
+                    preloadingSet.add(itemId);
+                    setTimeout(() => {
+                        console.log(`[LAZY_LOADING_SYSTEM] Preloading history-${itemId}`);
+                        fetch(`/inventory/item/${itemId}/history-view`)
+                            .then(response => response.text())
+                            .then(html => {
+                                ModalCache.save(`history-${itemId}`, html);
+                                preloadingSet.delete(itemId);
+                                console.log(`[LAZY_LOADING_SYSTEM] Cached history-${itemId}`);
+                            })
+                            .catch(err => {
+                                preloadingSet.delete(itemId);
+                                console.error(`[LAZY_LOADING_SYSTEM] Error preloading history-${itemId}`, err);
+                            });
+                    }, preloadIndex * 100);
+                    preloadIndex++;
+                }
+            }
+        }
+    });
+}
+
+// LAZY_LOADING_SYSTEM: Preload after infinite scroll
+document.body.addEventListener('htmx:afterSwap', function(evt) {
+    const target = evt.detail.target;
+
+    // Detect infinite scroll trigger swap by class
+    const isInfiniteScroll = target.classList && target.classList.contains('lazy-scroll-trigger');
+
+    if (isInfiniteScroll) {
+        console.log('[LAZY_LOADING_SYSTEM] Infinite scroll detected');
+        const inventoryTab = document.getElementById('view-inventory');
+        if (inventoryTab && !inventoryTab.classList.contains('hidden')) {
+            console.log('[LAZY_LOADING_SYSTEM] Inventory tab visible, preloading new items...');
+            setTimeout(() => preloadVisibleHistories(), 100);
+        }
+    }
+});
 
 // LAZY_LOADING_SYSTEM: Cache invalidation on inventory update
 document.body.addEventListener('inventoryUpdated', function() {

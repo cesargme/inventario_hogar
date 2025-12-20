@@ -40,12 +40,10 @@
 
 <script>
     if (!window.contextLoaded) {
-        setTimeout(function() {
-            htmx.ajax('GET', '/inventory/api/context', {
-                target: 'body',
-                swap: 'beforeend'
-            });
-        }, 500);
+        htmx.ajax('GET', '/inventory/api/context', {
+            target: 'body',
+            swap: 'beforeend'
+        });
     }
 
     document.getElementById('process-form').addEventListener('htmx:configRequest', function(evt) {

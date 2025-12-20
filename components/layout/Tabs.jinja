@@ -56,7 +56,11 @@
         const targetView = document.getElementById('view-' + tabName);
         targetView.classList.remove('hidden');
 
-        loadTabContent(tabName);
+        loadTabContent(tabName).then(() => {
+            if (tabName === 'inventory') {
+                preloadVisibleHistories();
+            }
+        });
     }
 
     document.body.addEventListener('inventoryUpdated', function() {
@@ -72,8 +76,6 @@
     });
 
     window.addEventListener('load', function() {
-        setTimeout(function() {
-            loadTabContent('inventory');
-        }, 500);
+        loadTabContent('inventory');
     });
 </script>
