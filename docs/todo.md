@@ -27,24 +27,26 @@ Click en "Procesar" → Cambia instantáneamente
 Click en "Ver" nuevamente → Cambia instantáneamente SIN spinner, mostrando los items ya cargados
 ¿Funciona ahora?
 
-- [ ] CONTINUAR ACA - terminar corregir lazy loading de historial
+- [x] CONTINUAR ACA - terminar corregir lazy loading de historial
 - [x] permitir mover de sitio
 - [ ] ordnear por prioritarios q falten. hacer lista para whatsapp (client side?)
 - [ ] arreglar platano vs plátano, y platano de la isla ... tambien cambiar nombre poder. tarros de leche q no este separado de leche.
-- [ ] optimizar menos uso de memoria ver donde se usa mas memoria
-- [ ] lazy load inteligiente de historial: solo actualizar del nuevo, si es q ya esta cargado. tambien de items...
 - [ ] cambiar unidad, ver si se pasa a contexto
 - [ ] cambiar de nombre de seccion
-- [ ] eliminar seccion solo si esta vacio, muevelos!
+- [ ] optimizar menos uso de memoria ver donde se usa mas memoria
+- [ ] lazy load inteligiente de historial: solo actualizar del nuevo, si es q ya esta cargado. tambien de items...
 - [ ] acelerar el query y esto
 - [ ] optimizar con cacheado el filtrado segun seccion
-- [ ] no depender en ms dealy en lazy loads quizas, q sea sequencial
 - [ ] al borrar q muestre confirmación
 - [ ] poder borrar tras mover todo en el mismo proceso
 - [ ] quisas optimizar prompt con tree selection para ahorrar tokens
 - [ ] cambiar de unidad... umbral y tmb mostrar umbral
+- [x] infinite scrolling a partir de cuanto? htmx del 5 item cargar 10
+- [ ] corregir eliminar item por su historial no funciona creo.
+
+- [ ] lazy-loading.js muy complejo, hacerlo mas mantenible.
 - [ ] hacer lazy load si cambio en servidor (artutor por ejemplo cambio)
-- [ ] infinite scrolling a partir de cuanto? htmx del 5 item cargar 10
 - [ ] context: can i cache serverside the list of items names and sections? to avoid select * what's it called?
 - [ ] is my current cache client side? if so is it bad? or the current data is nto that compromising
-- [ ] corregir eliminar item por su historial no funciona creo.
+- [ ] eliminar seccion solo si esta vacio, muevelos!
+- [ ] no depender en ms dealy en lazy loads quizas, q sea sequencial

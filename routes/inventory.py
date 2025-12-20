@@ -248,3 +248,60 @@ async def get_item_history_paginated(
             has_more=has_more
         )
     )
+
+
+@router.get("/api/items/batch-history-views")
+async def get_batch_history_views(
+    item_ids: str = Query(...),
+    user: User = Depends(verify_credentials),
+    session: Session = Depends(get_session),
+):
+    """
+    Retorna múltiples history-views en una sola llamada
+    item_ids: string separado por comas (ej: "1,2,3,4,5")
+    """
+    ids = [int(id.strip()) for id in item_ids.split(",") if id.strip()]
+
+    result = {}
+    for item_id in ids:
+        item = session.get(Item, item_id)
+        if not item:
+            continue
+
+        # Cargar primer batch de historial
+        all_history = session.exec(
+            select(ItemHistory)
+            .where(ItemHistory.item_id == item_id)
+            .order_by(ItemHistory.changed_at.desc())
+        ).all()
+
+        # Paginar primer batch
+        limit = HISTORY_RECORDS_PER_ITEM
+        history = all_history[0:limit]
+
+        # Calcular before/after
+        history_data = []
+        for i, record in enumerate(history):
+            before = all_history[i + 1].quantity if i + 1 < len(all_history) else 0
+            after = record.quantity
+            history_data.append({
+                "before": before,
+                "after": after,
+                "changed_at": record.changed_at,
+                "date_human": humanize_time(record.changed_at)
+            })
+
+        has_more = limit < len(all_history)
+
+        # Renderizar componente
+        html = get_catalog().render(
+            "features/HistoryView",
+            item=item,
+            history=history_data,
+            offset=limit,
+            has_more=has_more
+        )
+
+        result[str(item_id)] = html
+
+    return result

@@ -67,12 +67,13 @@ function closeHistoryModal() {
 // LAZY_LOADING_SYSTEM: Track preloading to avoid duplicates
 const preloadingSet = new Set();
 
-// LAZY_LOADING_SYSTEM: Preload visible item histories
+// LAZY_LOADING_SYSTEM: Preload visible item histories (BATCH)
 function preloadVisibleHistories() {
     const itemCards = document.querySelectorAll('#items-container .bg-white');
     console.log(`[LAZY_LOADING_SYSTEM] Found ${itemCards.length} item cards to preload`);
 
-    let preloadIndex = 0;
+    // Recolectar IDs que necesitan precarga
+    const idsToPreload = [];
     itemCards.forEach((card) => {
         const button = card.querySelector('button[onclick^="openHistoryModal"]');
         if (button) {
@@ -81,26 +82,37 @@ function preloadVisibleHistories() {
                 const itemId = match[1];
                 // Skip if already cached or currently preloading
                 if (!ModalCache.get(`history-${itemId}`) && !preloadingSet.has(itemId)) {
+                    idsToPreload.push(itemId);
                     preloadingSet.add(itemId);
-                    setTimeout(() => {
-                        console.log(`[LAZY_LOADING_SYSTEM] Preloading history-${itemId}`);
-                        fetch(`/inventory/item/${itemId}/history-view`)
-                            .then(response => response.text())
-                            .then(html => {
-                                ModalCache.save(`history-${itemId}`, html);
-                                preloadingSet.delete(itemId);
-                                console.log(`[LAZY_LOADING_SYSTEM] Cached history-${itemId}`);
-                            })
-                            .catch(err => {
-                                preloadingSet.delete(itemId);
-                                console.error(`[LAZY_LOADING_SYSTEM] Error preloading history-${itemId}`, err);
-                            });
-                    }, preloadIndex * 100);
-                    preloadIndex++;
                 }
             }
         }
     });
+
+    if (idsToPreload.length === 0) {
+        console.log('[LAZY_LOADING_SYSTEM] No items to preload');
+        return;
+    }
+
+    console.log(`[LAZY_LOADING_SYSTEM] Batch preloading ${idsToPreload.length} histories:`, idsToPreload);
+
+    // Hacer una sola llamada batch
+    fetch(`/inventory/api/items/batch-history-views?item_ids=${idsToPreload.join(',')}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(`[LAZY_LOADING_SYSTEM] Batch loaded ${Object.keys(data).length} histories`);
+            // Cachear cada historial
+            Object.entries(data).forEach(([itemId, html]) => {
+                ModalCache.save(`history-${itemId}`, html);
+                preloadingSet.delete(itemId);
+                console.log(`[LAZY_LOADING_SYSTEM] Cached history-${itemId}`);
+            });
+        })
+        .catch(err => {
+            console.error(`[LAZY_LOADING_SYSTEM] Error batch preloading`, err);
+            // Limpiar todos los IDs del set en caso de error
+            idsToPreload.forEach(id => preloadingSet.delete(id));
+        });
 }
 
 // LAZY_LOADING_SYSTEM: Preload after infinite scroll
