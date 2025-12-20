@@ -1,14 +1,25 @@
 import os
 from sqlmodel import Session, SQLModel, create_engine
+from dotenv import load_dotenv
 
-# Database URL - PostgreSQL only
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Cargar variables de entorno primero
+load_dotenv()
 
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is required")
+# Database URL - PostgreSQL para production, SQLite opcional para desarrollo
+USE_SQLITE = os.getenv("USE_SQLITE", "false").lower() == "true"
+
+if USE_SQLITE:
+    DATABASE_URL = "sqlite:///./inventario.db"
+    connect_args = {"check_same_thread": False}
+else:
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    if not DATABASE_URL:
+        raise ValueError("DATABASE_URL environment variable is required (or set USE_SQLITE=true for development)")
+    connect_args = {}
 
 engine = create_engine(
     DATABASE_URL,
+    connect_args=connect_args,
     echo=False,
 )
 
