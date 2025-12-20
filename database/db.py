@@ -1,21 +1,15 @@
 import os
 from sqlmodel import Session, SQLModel, create_engine
 
-# Database URL - PostgreSQL para Railway, SQLite para local
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///./inventario.db"  # Fallback a SQLite para desarrollo local
-)
+# Database URL - PostgreSQL only
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Create engine - diferentes connect_args para SQLite vs PostgreSQL
-connect_args = {}
-if DATABASE_URL.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is required")
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args=connect_args,
-    echo=False,  # Desactivar logs SQL para evitar problemas de encoding
+    echo=False,
 )
 
 

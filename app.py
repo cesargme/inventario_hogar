@@ -123,16 +123,21 @@ async def health_check(session: Session = Depends(get_session)):
     """Health check para Railway"""
     import os
     from database.models import Section, Item, User
+    from database.db import DATABASE_URL
 
     # Contar registros
     sections_count = len(session.exec(select(Section)).all())
     items_count = len(session.exec(select(Item)).all())
     users_count = len(session.exec(select(User)).all())
 
+    # Determinar tipo de DB
+    db_type = "postgresql" if DATABASE_URL.startswith("postgresql") else "sqlite"
+
     return {
         "status": "ok",
         "database": {
-            "path": os.getenv("DB_PATH", "./inventario.db"),
+            "type": db_type,
+            "url": DATABASE_URL.split("@")[-1] if "@" in DATABASE_URL else DATABASE_URL,  # Ocultar credenciales
             "sections": sections_count,
             "items": items_count,
             "users": users_count,
