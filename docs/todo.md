@@ -2,6 +2,7 @@ arreglar los colores q esten en tailwind config.js
 tambien eso del <script src="https://cdn.tailwindcss.com"></script>
 arreglar colores
 
+- [ ] cambiar contraseña
 - [ ] frutero
 - [x] sqlite en development
 - [x] fecha de cuando se actualizo (historial quizas)
@@ -25,6 +26,7 @@ Click en "Procesar" → Cambia instantáneamente
 Click en "Ver" nuevamente → Cambia instantáneamente SIN spinner, mostrando los items ya cargados
 ¿Funciona ahora?
 
+- [ ] CONTINUAR ACA - terminar corregir lazy loading de historial
 - [ ] permitir mover de sitio
 - [ ] lazy load inteligiente de historial: solo actualizar del nuevo, si es q ya esta cargado. tambien de items...
 - [ ] cambiar unidad, ver si se pasa a contexto
