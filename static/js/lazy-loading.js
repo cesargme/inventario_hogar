@@ -9,10 +9,8 @@ const ModalCache = {
 
     save(modalId, html) {
         console.log(`[MODAL_CACHE] Saving: ${modalId}`);
-        const temp = document.createElement('div');
-        temp.innerHTML = html;
-        temp.querySelectorAll('[hx-trigger*="intersect"]').forEach(el => el.remove());
-        this.cache[modalId] = temp.innerHTML;
+        // NO remover triggers de intersect - los necesitamos para infinite scroll del historial
+        this.cache[modalId] = html;
     },
 
     get(modalId) {
@@ -37,7 +35,10 @@ function openHistoryModal(itemId) {
     const cached = ModalCache.get(`history-${itemId}`);
     if (cached) {
         console.log(`[MODAL_CACHE] Opening from cache: history-${itemId}`);
-        document.getElementById('modal-container').innerHTML = cached;
+        const container = document.getElementById('modal-container');
+        container.innerHTML = cached;
+        // Reinicializar HTMX en el contenido cacheado para que los triggers funcionen
+        htmx.process(container);
     } else {
         console.log(`[MODAL_CACHE] Not in cache, fetching: history-${itemId}`);
         htmx.ajax('GET', `/inventory/item/${itemId}/history-view`, {
@@ -51,7 +52,14 @@ function closeHistoryModal() {
     const modal = document.getElementById('modal-container');
     const itemIdMatch = modal.innerHTML.match(/data-item-id="(\d+)"/);
     if (itemIdMatch) {
-        ModalCache.save(`history-${itemIdMatch[1]}`, modal.innerHTML);
+        const itemId = itemIdMatch[1];
+        // Solo cachear si no tiene triggers pendientes (para evitar triggers duplicados)
+        const hasPendingTriggers = modal.querySelector('[hx-trigger*="intersect once"]');
+        if (!hasPendingTriggers) {
+            ModalCache.save(`history-${itemId}`, modal.innerHTML);
+        } else {
+            console.log(`[MODAL_CACHE] Not caching history-${itemId} - has pending triggers`);
+        }
     }
     modal.innerHTML = '';
 }
