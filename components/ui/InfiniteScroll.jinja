@@ -6,7 +6,7 @@
      data-lazy-url="{{ url }}"
      data-lazy-label="{{ label }}"
      hx-get="{{ url }}"
-     hx-trigger="intersect once threshold:0.5"
+     hx-trigger="intersect once"
      hx-swap="outerHTML"
      {{ attrs.render(class="space-y-3") }}>
     {% for _ in range(skeleton_count) %}

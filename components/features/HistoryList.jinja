@@ -5,10 +5,12 @@
 {% endfor %}
 
 {% if has_more %}
+{%- set next_url = "/inventory/api/item/" ~ item_id ~ "/history?offset=" ~ offset -%}
+{%- set scroll_label = "history-pagination-" ~ item_id -%}
     <ui.InfiniteScroll
-        url="/inventory/api/item/{{ item_id }}/history?offset={{ offset }}"
+        :url="next_url"
         skeleton_count=2
-        label="history-pagination-{{ item_id }}">
+        :label="scroll_label">
         {#-- Named slot for skeleton --#}
         {% if _slot == "skeleton" %}
             <ui.HistorySkeleton />

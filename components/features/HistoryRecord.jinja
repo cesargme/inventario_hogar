@@ -6,14 +6,14 @@
             <p class="text-sm text-gray-600">{{ record.date_human }}</p>
             <p class="text-lg font-semibold">
                 <span class="text-gray-500">{{ record.before }}</span>
-                <span class="text-blue-600 mx-2">→</span>
+                <span class="text-blue-600 mx-2">&rarr;</span>
                 <span class="text-gray-900">{{ record.after }}</span>
             </p>
         </div>
         {% if record.after > record.before %}
-        <span class="text-green-600 text-2xl">↑</span>
+        <span class="text-green-600 text-2xl">&uarr;</span>
         {% elif record.after < record.before %}
-        <span class="text-red-600 text-2xl">↓</span>
+        <span class="text-red-600 text-2xl">&darr;</span>
         {% endif %}
     </div>
 </div>

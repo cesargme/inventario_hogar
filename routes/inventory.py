@@ -17,6 +17,16 @@ from utils.time import humanize_time
 router = APIRouter(prefix="/inventory", tags=["inventory"])
 templates = Jinja2Templates(directory="templates")
 
+# Lazy import to avoid circular dependency
+def get_catalog():
+    import jinjax
+    # Get or create catalog
+    if "catalog" not in templates.env.globals:
+        catalog = jinjax.Catalog(jinja_env=templates.env)
+        catalog.add_folder("components")
+        templates.env.globals["catalog"] = catalog
+    return templates.env.globals["catalog"]
+
 
 @router.get("/items")
 async def list_items(
@@ -102,15 +112,15 @@ async def get_items_paginated(
     # Determinar si hay más items por cargar
     has_more = len(items) == limit
 
-    return templates.TemplateResponse(
-        "components/items_list.html",
-        {
-            "request": request,
-            "items": items_data,
-            "offset": offset + limit,
-            "section_id": section_id,
-            "has_more": has_more,
-        }
+    # 🆕 Usar componente JinjaX
+    return HTMLResponse(
+        get_catalog().render(
+            "features/ItemsList",
+            items=items_data,
+            offset=offset + limit,
+            section_id=section_id,
+            has_more=has_more
+        )
     )
 
 
@@ -182,15 +192,15 @@ async def get_item_history_view(
 
     has_more = limit < len(all_history)
 
-    return templates.TemplateResponse(
-        "components/history_view.html",
-        {
-            "request": request,
-            "item": item,
-            "history": history_data,
-            "offset": limit,
-            "has_more": has_more
-        }
+    # 🆕 Usar componente JinjaX
+    return HTMLResponse(
+        get_catalog().render(
+            "features/HistoryView",
+            item=item,
+            history=history_data,
+            offset=limit,
+            has_more=has_more
+        )
     )
 
 
@@ -231,13 +241,13 @@ async def get_item_history_paginated(
 
     has_more = (offset + limit) < len(all_history)
 
-    return templates.TemplateResponse(
-        "components/history_list.html",
-        {
-            "request": request,
-            "history": history_data,
-            "item_id": item_id,
-            "offset": offset + limit,
-            "has_more": has_more
-        }
+    # 🆕 Usar componente JinjaX
+    return HTMLResponse(
+        get_catalog().render(
+            "features/HistoryList",
+            history=history_data,
+            item_id=item_id,
+            offset=offset + limit,
+            has_more=has_more
+        )
     )

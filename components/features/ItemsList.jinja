@@ -5,8 +5,9 @@
 {% endfor %}
 
 {% if has_more %}
+{%- set next_url = "/inventory/api/items?offset=" ~ offset ~ ("&section_id=" ~ section_id if section_id else "") -%}
     <ui.InfiniteScroll
-        url="/inventory/api/items?offset={{ offset }}{% if section_id %}&section_id={{ section_id }}{% endif %}"
+        :url="next_url"
         skeleton_count=2
         label="items-pagination">
         {#-- Named slot for skeleton --#}
