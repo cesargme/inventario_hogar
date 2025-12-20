@@ -1,0 +1,8 @@
+{#def message, submessage="" #}
+
+<div {{ attrs.render(class="text-center p-8 text-gray-500") }}>
+    <p class="text-lg">{{ message }}</p>
+    {% if submessage %}
+    <p class="text-sm mt-2">{{ submessage }}</p>
+    {% endif %}
+</div>

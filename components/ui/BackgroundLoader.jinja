@@ -1,0 +1,11 @@
+{#def url, delay="1s", label="" #}
+{#-- LAZY_LOADING_SYSTEM: Background Preloader --#}
+
+<div class="lazy-preloader hidden"
+     data-lazy-type="background-preload"
+     data-lazy-url="{{ url }}"
+     data-lazy-label="{{ label }}"
+     hx-get="{{ url }}"
+     hx-trigger="load delay:{{ delay }}"
+     hx-swap="none">
+</div>

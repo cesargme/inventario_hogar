@@ -10,7 +10,8 @@
       "Bash(\".venv/Scripts/python.exe\" -c \"import urllib.request; urllib.request.urlretrieve(''https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js'', ''static/js/htmx.min.js'')\")",
       "Bash(\".venv/Scripts/pytailwindcss.exe\" -i static/css/input.css -o static/css/output.css --minify)",
       "Bash(\".venv/Scripts/python.exe\" -c \"import jinjax; print(''JinjaX version:'', jinjax.__version__)\")",
-      "Bash(\".venv/Scripts/python.exe\" -c \"import jinjax; print(''JinjaX imported successfully'')\")"
+      "Bash(\".venv/Scripts/python.exe\" -c \"import jinjax; print(''JinjaX imported successfully'')\")",
+      "Bash(\".venv/Scripts/python.exe\":*)"
     ],
     "deny": [],
     "ask": []

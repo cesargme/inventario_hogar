@@ -1,0 +1,23 @@
+{#def items, offset, section_id=None, has_more=False #}
+
+{% for item in items %}
+    <features.ItemRow :item="item" />
+{% endfor %}
+
+{% if has_more %}
+    <ui.InfiniteScroll
+        url="/inventory/api/items?offset={{ offset }}{% if section_id %}&section_id={{ section_id }}{% endif %}"
+        skeleton_count=2
+        label="items-pagination">
+        {#-- Named slot for skeleton --#}
+        {% if _slot == "skeleton" %}
+            <ui.ItemSkeleton />
+        {% endif %}
+    </ui.InfiniteScroll>
+{% endif %}
+
+{% if items|length == 0 %}
+    <ui.EmptyState
+        message="No hay items en tu inventario"
+        submessage="Usa el tab 'Procesar' para agregar items" />
+{% endif %}

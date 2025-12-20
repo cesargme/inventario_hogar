@@ -1,0 +1,21 @@
+{#def history, item_id, offset, has_more=False #}
+
+{% for record in history %}
+    <features.HistoryRecord :record="record" />
+{% endfor %}
+
+{% if has_more %}
+    <ui.InfiniteScroll
+        url="/inventory/api/item/{{ item_id }}/history?offset={{ offset }}"
+        skeleton_count=2
+        label="history-pagination-{{ item_id }}">
+        {#-- Named slot for skeleton --#}
+        {% if _slot == "skeleton" %}
+            <ui.HistorySkeleton />
+        {% endif %}
+    </ui.InfiniteScroll>
+{% endif %}
+
+{% if not history and not has_more %}
+    <ui.EmptyState message="No hay historial disponible" />
+{% endif %}

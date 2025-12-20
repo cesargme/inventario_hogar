@@ -1,0 +1,15 @@
+{#def url, skeleton_count=2, label="" #}
+{#-- LAZY_LOADING_SYSTEM: Infinite Scroll Component --#}
+
+<div class="lazy-scroll-trigger"
+     data-lazy-type="infinite-scroll"
+     data-lazy-url="{{ url }}"
+     data-lazy-label="{{ label }}"
+     hx-get="{{ url }}"
+     hx-trigger="intersect once threshold:0.5"
+     hx-swap="outerHTML"
+     {{ attrs.render(class="space-y-3") }}>
+    {% for _ in range(skeleton_count) %}
+        {{ content("skeleton") }}
+    {% endfor %}
+</div>
