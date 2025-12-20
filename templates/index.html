@@ -28,4 +28,37 @@
 
 <!-- Modal container para vistas secundarias (historial, etc) -->
 <div id="modal-container"></div>
+
+<script>
+    // Cache de modales de historial por item_id
+    const historyModals = {};
+
+    function openHistoryModal(itemId) {
+        // Si el modal ya existe, solo mostrarlo
+        if (historyModals[itemId]) {
+            document.getElementById('modal-container').innerHTML = historyModals[itemId];
+        } else {
+            // Si no existe, cargar por primera vez
+            htmx.ajax('GET', '/inventory/item/' + itemId + '/history-view', {
+                target: '#modal-container',
+                swap: 'innerHTML'
+            });
+        }
+    }
+
+    function closeHistoryModal() {
+        // Guardar estado actual antes de cerrar (sin triggers de carga)
+        const modal = document.getElementById('modal-container');
+        const itemIdMatch = modal.innerHTML.match(/data-item-id="(\d+)"/);
+        if (itemIdMatch) {
+            const itemId = itemIdMatch[1];
+            // Remover elementos con hx-trigger="intersect" antes de cachear
+            const clone = modal.cloneNode(true);
+            clone.querySelectorAll('[hx-trigger*="intersect"]').forEach(el => el.remove());
+            historyModals[itemId] = clone.innerHTML;
+        }
+
+        modal.innerHTML = '';
+    }
+</script>
 {% endblock %}

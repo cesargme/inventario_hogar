@@ -4,6 +4,7 @@ arreglar colores
 
 - [ ] cambiar contraseña
 - [ ] frutero
+- [ ] compartir con fam lmfao
 - [x] sqlite en development
 - [x] fecha de cuando se actualizo (historial quizas)
 - [x] comandos: mover de seccion (cambiar de nombre a lugar)
@@ -27,7 +28,7 @@ Click en "Ver" nuevamente → Cambia instantáneamente SIN spinner, mostrando lo
 ¿Funciona ahora?
 
 - [ ] CONTINUAR ACA - terminar corregir lazy loading de historial
-- [ ] permitir mover de sitio
+- [x] permitir mover de sitio
 - [ ] lazy load inteligiente de historial: solo actualizar del nuevo, si es q ya esta cargado. tambien de items...
 - [ ] cambiar unidad, ver si se pasa a contexto
 - [ ] cambiar de emoji y nombre de seccion
@@ -38,3 +39,8 @@ Click en "Ver" nuevamente → Cambia instantáneamente SIN spinner, mostrando lo
 - [ ] al borrar q muestre confirmación
 - [ ] poder borrar tras mover todo en el mismo proceso
 - [ ] quisas optimizar prompt con tree selection para ahorrar tokens
+- [ ] cambiar de unidad... umbral y tmb mostrar umbral
+- [ ] hacer lazy load si cambio en servidor (artutor por ejemplo cambio)
+- [ ] infinite scrolling a partir de cuanto? htmx del 5 item cargar 10
+- [ ] context: can i cache serverside the list of items names and sections? to avoid select * what's it called?
+- [ ] is my current cache client side? if so is it bad? or the current data is nto that compromising

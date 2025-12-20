@@ -157,9 +157,40 @@ async def get_item_history_view(
             {"request": request, "message": "Item no encontrado"}
         )
 
+    # Cargar primer batch de historial directamente
+    all_history = session.exec(
+        select(ItemHistory)
+        .where(ItemHistory.item_id == item_id)
+        .order_by(ItemHistory.changed_at.desc())
+    ).all()
+
+    # Paginar primer batch
+    limit = HISTORY_RECORDS_PER_ITEM
+    history = all_history[0:limit]
+
+    # Calcular before/after
+    history_data = []
+    for i, record in enumerate(history):
+        before = all_history[i + 1].quantity if i + 1 < len(all_history) else 0
+        after = record.quantity
+        history_data.append({
+            "before": before,
+            "after": after,
+            "changed_at": record.changed_at,
+            "date_human": humanize_time(record.changed_at)
+        })
+
+    has_more = limit < len(all_history)
+
     return templates.TemplateResponse(
         "components/history_view.html",
-        {"request": request, "item": item}
+        {
+            "request": request,
+            "item": item,
+            "history": history_data,
+            "offset": limit,
+            "has_more": has_more
+        }
     )
 
 

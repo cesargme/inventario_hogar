@@ -28,10 +28,14 @@
 
     <!-- Botón para abrir historial en vista separada -->
     <button
-        hx-get="/inventory/item/{{ item.id }}/history-view"
-        hx-target="#modal-container"
-        hx-swap="innerHTML"
+        onclick="openHistoryModal({{ item.id }})"
         class="text-sm text-blue-600 hover:text-blue-800 mt-2 underline">
         Ver historial
     </button>
+
+    <!-- Precargar historial en background (no se muestra, solo cachea) -->
+    <div hx-get="/inventory/api/item/{{ item.id }}/history?offset=0"
+         hx-trigger="load delay:1s"
+         hx-swap="none">
+    </div>
 </div>
