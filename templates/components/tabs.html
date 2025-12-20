@@ -1,12 +1,10 @@
 <!-- Bottom Tabs - Fixed at bottom -->
-<nav class="fixed bottom-0 left-0 right-0 bg-beige border-t border-gray-300 shadow-lg">
+<nav class="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-300 shadow-lg">
     <div class="flex">
         <!-- Tab Procesar -->
         <button
-            hx-get="/app/process"
-            hx-target="#tab-content"
-            hx-swap="innerHTML"
-            class="flex-1 py-3 text-center border-r border-gray-200 hover:bg-gray-100 transition-colors"
+            onclick="switchTab('process')"
+            class="flex-1 py-3 text-center border-r border-gray-200 hover:bg-gray-100 transition-colors bg-blue-600 text-white"
             id="tab-process">
             <div class="text-2xl">🏠</div>
             <div class="text-xs font-medium">Procesar</div>
@@ -14,9 +12,7 @@
 
         <!-- Tab Ver Inventario -->
         <button
-            hx-get="/app/inventory"
-            hx-target="#tab-content"
-            hx-swap="innerHTML"
+            onclick="switchTab('inventory')"
             class="flex-1 py-3 text-center hover:bg-gray-100 transition-colors"
             id="tab-inventory">
             <div class="text-2xl">📦</div>
@@ -26,15 +22,73 @@
 </nav>
 
 <script>
-    // Marcar tab activo
-    document.body.addEventListener('htmx:afterSwap', function(evt) {
-        document.querySelectorAll('nav button').forEach(btn => {
-            btn.classList.remove('bg-primary', 'text-white');
-        });
+    // Sistema de cache de tabs
+    const tabCache = {
+        loaded: { process: false, inventory: false },
+        loading: { process: false, inventory: false }
+    };
 
-        if (evt.detail.target.id === 'tab-content') {
-            const activeTab = evt.detail.elt;
-            activeTab.classList.add('bg-primary', 'text-white');
+    function switchTab(tabName) {
+        // Ocultar todos los tabs
+        document.getElementById('view-process').classList.add('hidden');
+        document.getElementById('view-inventory').classList.add('hidden');
+
+        // Actualizar estilos de botones
+        document.getElementById('tab-process').classList.remove('bg-blue-600', 'text-white');
+        document.getElementById('tab-inventory').classList.remove('bg-blue-600', 'text-white');
+
+        const activeButton = document.getElementById('tab-' + tabName);
+        activeButton.classList.add('bg-blue-600', 'text-white');
+
+        // Mostrar tab seleccionado
+        const targetView = document.getElementById('view-' + tabName);
+        targetView.classList.remove('hidden');
+
+        // Cargar contenido si no está cacheado
+        if (!tabCache.loaded[tabName] && !tabCache.loading[tabName]) {
+            tabCache.loading[tabName] = true;
+
+            htmx.ajax('GET', '/app/' + tabName, {
+                target: '#view-' + tabName,
+                swap: 'innerHTML'
+            }).then(() => {
+                tabCache.loaded[tabName] = true;
+                tabCache.loading[tabName] = false;
+            });
         }
+    }
+
+    // Escuchar evento de invalidación de cache del inventario
+    document.body.addEventListener('inventoryUpdated', function() {
+        // Marcar inventario como no cargado para forzar recarga
+        tabCache.loaded.inventory = false;
+
+        // Recargar contenido del tab inventario si está visible
+        const inventoryView = document.getElementById('view-inventory');
+        if (!inventoryView.classList.contains('hidden')) {
+            htmx.ajax('GET', '/app/inventory', {
+                target: '#view-inventory',
+                swap: 'innerHTML'
+            }).then(() => {
+                tabCache.loaded.inventory = true;
+            });
+        }
+    });
+
+    // Precargar inventario en background después de que cargue la página
+    window.addEventListener('load', function() {
+        // Esperar 500ms para no bloquear la carga inicial del tab "Procesar"
+        setTimeout(function() {
+            if (!tabCache.loaded.inventory && !tabCache.loading.inventory) {
+                tabCache.loading.inventory = true;
+                htmx.ajax('GET', '/app/inventory', {
+                    target: '#view-inventory',
+                    swap: 'innerHTML'
+                }).then(() => {
+                    tabCache.loaded.inventory = true;
+                    tabCache.loading.inventory = false;
+                });
+            }
+        }, 500);
     });
 </script>

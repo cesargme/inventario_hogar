@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Form, Request
+from fastapi import APIRouter, Depends, Form, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session
@@ -172,8 +172,14 @@ async def process_text(
     # Commit cambios
     session.commit()
 
-    # Retornar feedback HTML
-    return templates.TemplateResponse(
+    # Retornar feedback HTML con evento HTMX para invalidar cache
+    response = templates.TemplateResponse(
         "components/feedback.html",
         {"request": request, "changes": changes, "errors": errors},
     )
+
+    # Si hubo cambios exitosos, disparar evento para invalidar cache del inventario
+    if changes:
+        response.headers["HX-Trigger"] = "inventoryUpdated"
+
+    return response

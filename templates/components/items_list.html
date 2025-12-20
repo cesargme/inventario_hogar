@@ -1,0 +1,23 @@
+<!-- Renderiza los items paginados -->
+{% for item in items %}
+    {% include 'components/item_row.html' %}
+{% endfor %}
+
+<!-- Trigger para infinite scroll (solo si hay items para cargar) -->
+{% if items|length >= 5 %}
+<div hx-get="/inventory/api/items?offset={{ offset }}{% if section_id %}&section_id={{ section_id }}{% endif %}"
+     hx-trigger="intersect once"
+     hx-swap="outerHTML">
+    <!-- Skeleton placeholders mientras carga -->
+    {% include 'components/item_skeleton.html' %}
+    {% include 'components/item_skeleton.html' %}
+</div>
+{% endif %}
+
+<!-- Mensaje si no hay items -->
+{% if items|length == 0 %}
+<div class="bg-white rounded-lg p-8 text-center text-gray-500">
+    <p class="text-lg">No hay items en tu inventario</p>
+    <p class="text-sm mt-2">Usa el tab "Procesar" para agregar items</p>
+</div>
+{% endif %}

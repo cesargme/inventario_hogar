@@ -20,3 +20,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./inventario.db")
 
 # SQLite Web UI
 SQLITE_WEB_UI_PASSWORD = os.getenv("SQLITE_WEB_UI_PASSWORD", "admin")
+
+# Lazy Loading Configuration
+ITEMS_PER_PAGE = 5  # X = cantidad de items por página en lazy load
+HISTORY_RECORDS_PER_ITEM = 10  # Y = cantidad de registros de historial por item

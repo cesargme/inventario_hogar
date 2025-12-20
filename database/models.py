@@ -28,13 +28,26 @@ class Item(SQLModel, table=True):
     section_id: int = Field(foreign_key="section.id")
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    # Relación
+    # Relaciones
     section: Section = Relationship(back_populates="items")
+    history: list["ItemHistory"] = Relationship(back_populates="item")
 
     @property
     def is_below_threshold(self) -> bool:
         """Verifica si el item está por debajo del umbral"""
         return self.quantity < self.threshold
+
+
+class ItemHistory(SQLModel, table=True):
+    """Historial de cambios de cantidad de items"""
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    item_id: int = Field(foreign_key="item.id")
+    quantity: float
+    changed_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # Relación
+    item: Item = Relationship(back_populates="history")
 
 
 class User(SQLModel, table=True):

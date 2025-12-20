@@ -1,21 +1,17 @@
 <!-- Vista de Inventario -->
 <div class="max-w-2xl mx-auto">
-    <h2 class="text-xl font-semibold mb-4 text-primary">Tu Inventario</h2>
+    <h2 class="text-xl font-semibold mb-4 text-blue-600">Tu Inventario</h2>
 
     <!-- Filtros de sección -->
     {% include 'components/section_filters.html' %}
 
-    <!-- Lista de items -->
-    <div id="items-list" class="mt-4 space-y-3">
-        {% if items %}
-            {% for item in items %}
-                {% include 'components/item_row.html' %}
-            {% endfor %}
-        {% else %}
-        <div class="bg-white rounded-lg p-8 text-center text-gray-500">
-            <p class="text-lg">No hay items en tu inventario</p>
-            <p class="text-sm mt-2">Usa el tab "Procesar" para agregar items</p>
+    <!-- Lista de items con lazy loading -->
+    <div id="items-container" class="mt-4 space-y-3">
+        <!-- Carga inicial con HTMX -->
+        <div hx-get="/inventory/api/items?offset=0&limit=5"
+             hx-trigger="load"
+             hx-swap="outerHTML">
+            {% include 'components/loading_spinner.html' %}
         </div>
-        {% endif %}
     </div>
 </div>
