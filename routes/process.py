@@ -2,7 +2,6 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, Form, Request, Response
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from sqlmodel import Session
 
 from auth.basic import verify_credentials
@@ -13,7 +12,10 @@ from utils.llm import prompt
 from utils.parsers import parse_llm_commands
 
 router = APIRouter(prefix="/process", tags=["process"])
-templates = Jinja2Templates(directory="templates")
+
+def get_templates():
+    from fastapi.templating import Jinja2Templates
+    return Jinja2Templates(directory="templates")
 
 
 SYSTEM_PROMPT = """Eres un asistente para gestionar inventario de alimentos.
@@ -86,7 +88,7 @@ async def process_text(
             error_msg = f"Error parseando respuesta del LLM. Ver logs del servidor para detalles."
             print(f"[ERROR] No se pudieron parsear comandos de la respuesta: {llm_response}")
 
-        return templates.TemplateResponse(
+        return get_templates().TemplateResponse(
             "components/feedback.html",
             {
                 "request": request,
@@ -290,7 +292,7 @@ async def process_text(
     session.commit()
 
     # Retornar feedback HTML con evento HTMX para invalidar cache
-    response = templates.TemplateResponse(
+    response = get_templates().TemplateResponse(
         "components/feedback.html",
         {"request": request, "changes": changes, "errors": errors},
     )

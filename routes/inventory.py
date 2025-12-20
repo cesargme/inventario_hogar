@@ -3,7 +3,6 @@ import json
 
 from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select, func
 
 from auth.basic import verify_credentials
@@ -15,11 +14,12 @@ from utils.serializers import serialize_items_for_template
 from utils.time import humanize_time
 
 router = APIRouter(prefix="/inventory", tags=["inventory"])
-templates = Jinja2Templates(directory="templates")
 
 # Lazy import to avoid circular dependency
 def get_catalog():
     import jinjax
+    from fastapi.templating import Jinja2Templates
+    templates = Jinja2Templates(directory="templates")
     # Get or create catalog
     if "catalog" not in templates.env.globals:
         catalog = jinjax.Catalog(jinja_env=templates.env)
@@ -162,10 +162,7 @@ async def get_item_history_view(
     """Vista completa de historial con infinite scroll"""
     item = session.get(Item, item_id)
     if not item:
-        return templates.TemplateResponse(
-            "components/error.html",
-            {"request": request, "message": "Item no encontrado"}
-        )
+        return HTMLResponse("<div class='text-red-500 p-4'>Item no encontrado</div>")
 
     # Cargar primer batch de historial directamente
     all_history = session.exec(
