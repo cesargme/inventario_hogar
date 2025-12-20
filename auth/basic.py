@@ -3,8 +3,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlmodel import Session, select
 
-from database.db import get_session
-from database.models import User
+from config.database.db import get_session
+from config.database.models import User
 
 security = HTTPBasic()
 

@@ -37,7 +37,7 @@ def get_session():
 
 def init_db():
     """Inicializa la base de datos con datos seed"""
-    from database.models import Section, User
+    from config.database.models import Section, User
     import bcrypt
     from dotenv import load_dotenv
 

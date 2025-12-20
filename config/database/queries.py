@@ -2,7 +2,7 @@
 
 from sqlmodel import Session, select, func
 
-from database.models import Item, Section
+from config.database.models import Item, Section
 
 
 def find_item_by_name(session: Session, name: str) -> Item | None:

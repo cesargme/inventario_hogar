@@ -5,9 +5,9 @@ from fastapi.responses import HTMLResponse
 from sqlmodel import Session
 
 from auth.basic import verify_credentials
-from database.db import get_session
-from database.models import Item, ItemHistory, Section, User
-from database.queries import find_item_by_name, find_section_by_name
+from config.database.db import get_session
+from config.database.models import Item, ItemHistory, Section, User
+from config.database.queries import find_item_by_name, find_section_by_name
 from utils.llm import prompt
 from utils.parsers import parse_llm_commands
 
@@ -88,13 +88,19 @@ async def process_text(
             error_msg = f"Error parseando respuesta del LLM. Ver logs del servidor para detalles."
             print(f"[ERROR] No se pudieron parsear comandos de la respuesta: {llm_response}")
 
-        return get_templates().TemplateResponse(
-            "components/feedback.html",
-            {
-                "request": request,
-                "changes": [],
-                "errors": [error_msg],
-            },
+        # Lazy import catalog
+        def get_catalog():
+            import jinjax
+            from fastapi.templating import Jinja2Templates
+            templates = Jinja2Templates(directory="templates")
+            if "catalog" not in templates.env.globals:
+                catalog = jinjax.Catalog(jinja_env=templates.env)
+                catalog.add_folder("components")
+                templates.env.globals["catalog"] = catalog
+            return templates.env.globals["catalog"]
+
+        return HTMLResponse(
+            get_catalog().render("ui/Feedback", changes=[], errors=[error_msg])
         )
 
     # Ejecutar comandos
@@ -291,10 +297,20 @@ async def process_text(
     # Commit cambios
     session.commit()
 
+    # Lazy import catalog
+    def get_catalog():
+        import jinjax
+        from fastapi.templating import Jinja2Templates
+        templates = Jinja2Templates(directory="templates")
+        if "catalog" not in templates.env.globals:
+            catalog = jinjax.Catalog(jinja_env=templates.env)
+            catalog.add_folder("components")
+            templates.env.globals["catalog"] = catalog
+        return templates.env.globals["catalog"]
+
     # Retornar feedback HTML con evento HTMX para invalidar cache
-    response = get_templates().TemplateResponse(
-        "components/feedback.html",
-        {"request": request, "changes": changes, "errors": errors},
+    response = HTMLResponse(
+        get_catalog().render("ui/Feedback", changes=changes, errors=errors)
     )
 
     # Si hubo cambios exitosos, disparar evento para invalidar cache del inventario

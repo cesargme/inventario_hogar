@@ -7,9 +7,9 @@ from sqlmodel import Session, select, func
 
 from auth.basic import verify_credentials
 from config.settings import ITEMS_PER_PAGE, HISTORY_RECORDS_PER_ITEM
-from database.db import get_session
-from database.models import Item, ItemHistory, Section, User
-from database.queries import find_item_by_name, find_section_by_name
+from config.database.db import get_session
+from config.database.models import Item, ItemHistory, Section, User
+from config.database.queries import find_item_by_name, find_section_by_name
 from utils.serializers import serialize_items_for_template
 from utils.time import humanize_time
 

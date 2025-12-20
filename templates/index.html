@@ -4,61 +4,21 @@
 
 {% block content %}
 <div class="flex-1 pb-16">
-    <!-- Header -->
     <header class="bg-gray-50 text-gray-900 p-4 shadow-md">
-        <h1 class="text-2xl font-bold text-center">🥘 Inventario Alimentos</h1>
+        <h1 class="text-2xl font-bold text-center">&#127864; Inventario Alimentos</h1>
     </header>
 
-    <!-- Tab Views - Todos se mantienen en el DOM, solo se ocultan/muestran -->
     <main class="p-4 bg-white">
-        <!-- Vista Procesar (por defecto visible) -->
         <div id="view-process">
-            {% include 'components/process_view.html' %}
+            {{ catalog.render("features/ProcessView") }}
         </div>
 
-        <!-- Vista Inventario (inicialmente oculta) -->
         <div id="view-inventory" class="hidden">
-            <!-- Se carga dinámicamente al cambiar al tab -->
         </div>
     </main>
 </div>
 
-<!-- Bottom Navigation Tabs -->
-{% include 'components/tabs.html' %}
+{{ catalog.render("layout/Tabs") }}
 
-<!-- Modal container para vistas secundarias (historial, etc) -->
 <div id="modal-container"></div>
-
-<script>
-    // Cache de modales de historial por item_id
-    const historyModals = {};
-
-    function openHistoryModal(itemId) {
-        // Si el modal ya existe, solo mostrarlo
-        if (historyModals[itemId]) {
-            document.getElementById('modal-container').innerHTML = historyModals[itemId];
-        } else {
-            // Si no existe, cargar por primera vez
-            htmx.ajax('GET', '/inventory/item/' + itemId + '/history-view', {
-                target: '#modal-container',
-                swap: 'innerHTML'
-            });
-        }
-    }
-
-    function closeHistoryModal() {
-        // Guardar estado actual antes de cerrar (sin triggers de carga)
-        const modal = document.getElementById('modal-container');
-        const itemIdMatch = modal.innerHTML.match(/data-item-id="(\d+)"/);
-        if (itemIdMatch) {
-            const itemId = itemIdMatch[1];
-            // Remover elementos con hx-trigger="intersect" antes de cachear
-            const clone = modal.cloneNode(true);
-            clone.querySelectorAll('[hx-trigger*="intersect"]').forEach(el => el.remove());
-            historyModals[itemId] = clone.innerHTML;
-        }
-
-        modal.innerHTML = '';
-    }
-</script>
 {% endblock %}

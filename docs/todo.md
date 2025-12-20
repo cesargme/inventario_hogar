@@ -2,7 +2,7 @@ arreglar los colores q esten en tailwind config.js
 tambien eso del <script src="https://cdn.tailwindcss.com"></script>
 arreglar colores
 
-- [ ] cambiar contraseña
+- [x] cambiar contraseña
 - [ ] frutero
 - [ ] compartir con fam lmfao
 - [x] sqlite en development
@@ -29,9 +29,12 @@ Click en "Ver" nuevamente → Cambia instantáneamente SIN spinner, mostrando lo
 
 - [ ] CONTINUAR ACA - terminar corregir lazy loading de historial
 - [x] permitir mover de sitio
+- [ ] ordnear por prioritarios q falten. hacer lista para whatsapp (client side?)
+- [ ] arreglar platano vs plátano, y platano de la isla ... tambien cambiar nombre poder. tarros de leche q no este separado de leche.
+- [ ] optimizar menos uso de memoria ver donde se usa mas memoria
 - [ ] lazy load inteligiente de historial: solo actualizar del nuevo, si es q ya esta cargado. tambien de items...
 - [ ] cambiar unidad, ver si se pasa a contexto
-- [ ] cambiar de emoji y nombre de seccion
+- [ ] cambiar de nombre de seccion
 - [ ] eliminar seccion solo si esta vacio, muevelos!
 - [ ] acelerar el query y esto
 - [ ] optimizar con cacheado el filtrado segun seccion
@@ -44,3 +47,4 @@ Click en "Ver" nuevamente → Cambia instantáneamente SIN spinner, mostrando lo
 - [ ] infinite scrolling a partir de cuanto? htmx del 5 item cargar 10
 - [ ] context: can i cache serverside the list of items names and sections? to avoid select * what's it called?
 - [ ] is my current cache client side? if so is it bad? or the current data is nto that compromising
+- [ ] corregir eliminar item por su historial no funciona creo.

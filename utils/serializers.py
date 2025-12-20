@@ -1,6 +1,6 @@
 """Data serialization utilities for converting database models to template-ready dictionaries"""
 
-from database.models import Item, Section
+from config.database.models import Item, Section
 from utils.time import humanize_time
 
 

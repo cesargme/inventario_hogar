@@ -1,0 +1,56 @@
+{#def #}
+{#-- Vista de Procesamiento de Texto --#}
+
+<div class="max-w-2xl mx-auto">
+    <h2 class="text-xl font-semibold mb-4 text-blue-600">Dicta tus cambios</h2>
+
+    <form
+        hx-post="/process/text"
+        hx-target="#feedback"
+        hx-swap="innerHTML"
+        hx-indicator="#loading"
+        class="space-y-4"
+        id="process-form">
+
+        <textarea
+            name="text"
+            rows="15"
+            placeholder="Ejemplo: Agregue 2 kilos de arroz al almacen 1 y quedan 3 huevos en el refrigerador..."
+            class="w-full p-4 border-2 border-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 resize-none"
+            required></textarea>
+
+        <input type="hidden" name="context" id="context-input">
+
+        <button
+            type="submit"
+            class="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+            id="process-btn">
+            &#127908; Procesar Texto
+            <div id="loading" class="htmx-indicator">
+                <svg class="animate-spin h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </button>
+    </form>
+
+    <div id="feedback" class="mt-6"></div>
+</div>
+
+<script>
+    if (!window.contextLoaded) {
+        setTimeout(function() {
+            htmx.ajax('GET', '/inventory/api/context', {
+                target: 'body',
+                swap: 'beforeend'
+            });
+        }, 500);
+    }
+
+    document.getElementById('process-form').addEventListener('htmx:configRequest', function(evt) {
+        if (window.contextLoaded && window.inventoryContext) {
+            evt.detail.parameters.context = JSON.stringify(window.inventoryContext);
+        }
+    });
+</script>

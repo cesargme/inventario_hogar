@@ -9,8 +9,8 @@ from fastapi.templating import Jinja2Templates
 from auth.basic import verify_credentials
 from config.manifest import manifest_data
 from config.settings import APP_NAME, APP_VERSION
-from database.db import init_db, get_session
-from database.models import User
+from config.database.db import init_db, get_session
+from config.database.models import User
 from routes import inventory, process
 from sqlmodel import Session, select
 from utils.serializers import serialize_items_for_template, serialize_sections_for_template
@@ -64,9 +64,7 @@ async def app_process_view(
     user: User = Depends(verify_credentials),
 ):
     """Vista de procesamiento de texto"""
-    return templates.TemplateResponse(
-        "components/process_view.html", {"request": request}
-    )
+    return HTMLResponse(catalog.render("features/ProcessView"))
 
 
 @app.get("/app/inventory", response_class=HTMLResponse)
@@ -77,26 +75,14 @@ async def app_inventory_view(
     session: Session = Depends(get_session),
 ):
     """Vista de inventario con filtro opcional por sección"""
-    from database.models import Item, Section
+    from config.database.models import Section
 
-    # Obtener secciones
     sections_stmt = select(Section).order_by(Section.name)
     sections = session.exec(sections_stmt).all()
-
-    # Obtener items
-    items_stmt = select(Item).order_by(Item.updated_at.desc())
-    if section_id:
-        items_stmt = items_stmt.where(Item.section_id == section_id)
-
-    items = session.exec(items_stmt).all()
-
-    # Preparar data para template
-    items_data = serialize_items_for_template(items)
     sections_data = serialize_sections_for_template(sections)
 
-    return templates.TemplateResponse(
-        "components/inventory_view.html",
-        {"request": request, "items": items_data, "sections": sections_data},
+    return HTMLResponse(
+        catalog.render("features/InventoryView", sections=sections_data)
     )
 
 
@@ -110,8 +96,8 @@ async def get_manifest():
 async def health_check(session: Session = Depends(get_session)):
     """Health check para Railway"""
     import os
-    from database.models import Section, Item, User
-    from database.db import DATABASE_URL
+    from config.database.models import Section, Item, User
+    from config.database.db import DATABASE_URL
 
     # Contar registros
     sections_count = len(session.exec(select(Section)).all())

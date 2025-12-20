@@ -1,0 +1,79 @@
+{#def #}
+{#-- Bottom Navigation Tabs --#}
+
+<nav class="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-300 shadow-lg">
+    <div class="flex">
+        <button
+            onclick="switchTab('process')"
+            class="flex-1 py-3 text-center border-r border-gray-200 hover:bg-gray-100 transition-colors bg-blue-600 text-white"
+            id="tab-process">
+            <div class="text-2xl">&#127968;</div>
+            <div class="text-xs font-medium">Procesar</div>
+        </button>
+
+        <button
+            onclick="switchTab('inventory')"
+            class="flex-1 py-3 text-center hover:bg-gray-100 transition-colors"
+            id="tab-inventory">
+            <div class="text-2xl">&#128230;</div>
+            <div class="text-xs font-medium">Ver</div>
+        </button>
+    </div>
+</nav>
+
+<script src="/static/js/lazy-loading.js"></script>
+<script>
+    const tabCache = {
+        loaded: { process: false, inventory: false },
+        loading: { process: false, inventory: false }
+    };
+
+    function loadTabContent(tabName, forceReload = false) {
+        if (forceReload || (!tabCache.loaded[tabName] && !tabCache.loading[tabName])) {
+            tabCache.loading[tabName] = true;
+
+            return htmx.ajax('GET', '/app/' + tabName, {
+                target: '#view-' + tabName,
+                swap: 'innerHTML'
+            }).then(() => {
+                tabCache.loaded[tabName] = true;
+                tabCache.loading[tabName] = false;
+            });
+        }
+        return Promise.resolve();
+    }
+
+    function switchTab(tabName) {
+        document.getElementById('view-process').classList.add('hidden');
+        document.getElementById('view-inventory').classList.add('hidden');
+
+        document.getElementById('tab-process').classList.remove('bg-blue-600', 'text-white');
+        document.getElementById('tab-inventory').classList.remove('bg-blue-600', 'text-white');
+
+        const activeButton = document.getElementById('tab-' + tabName);
+        activeButton.classList.add('bg-blue-600', 'text-white');
+
+        const targetView = document.getElementById('view-' + tabName);
+        targetView.classList.remove('hidden');
+
+        loadTabContent(tabName);
+    }
+
+    document.body.addEventListener('inventoryUpdated', function() {
+        tabCache.loaded.inventory = false;
+        window.contextLoaded = false;
+
+        htmx.ajax('GET', '/inventory/api/context', {
+            target: 'body',
+            swap: 'beforeend'
+        });
+
+        loadTabContent('inventory', true);
+    });
+
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            loadTabContent('inventory');
+        }, 500);
+    });
+</script>

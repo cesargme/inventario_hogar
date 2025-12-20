@@ -1,0 +1,16 @@
+{#def sections #}
+{#-- Vista de Inventario --#}
+
+<div class="max-w-2xl mx-auto">
+    <h2 class="text-xl font-semibold mb-4 text-blue-600">Tu Inventario</h2>
+
+    <features.SectionFilters :sections="sections" />
+
+    <div id="items-container" class="mt-4 space-y-3">
+        <div hx-get="/inventory/api/items?offset=0&limit=5"
+             hx-trigger="load"
+             hx-swap="outerHTML">
+            <ui.LoadingSpinner />
+        </div>
+    </div>
+</div>
