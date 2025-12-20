@@ -26,43 +26,12 @@
         </div>
     </div>
 
-    <!-- Botón para expandir/colapsar historial -->
+    <!-- Botón para abrir historial en vista separada -->
     <button
-        onclick="toggleHistory({{ item.id }})"
-        id="history-btn-{{ item.id }}"
+        hx-get="/inventory/item/{{ item.id }}/history-view"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
         class="text-sm text-blue-600 hover:text-blue-800 mt-2 underline">
         Ver historial
     </button>
-
-    <!-- Contenedor del historial (precargado en background) -->
-    <div id="history-{{ item.id }}" class="mt-2 hidden">
-        <!-- Skeleton mientras carga -->
-        <div class="bg-gray-50 rounded p-3 animate-pulse">
-            <div class="h-4 bg-gray-300 rounded w-1/2 mb-2"></div>
-            <div class="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div class="h-3 bg-gray-200 rounded w-2/3"></div>
-        </div>
-    </div>
-
-    <!-- Precargar historial en background (reemplaza skeleton) -->
-    <div hx-get="/inventory/api/item/{{ item.id }}/history"
-         hx-trigger="load delay:1s"
-         hx-target="#history-{{ item.id }}"
-         hx-swap="innerHTML">
-    </div>
-
-    <script>
-        function toggleHistory(itemId) {
-            const historyDiv = document.getElementById('history-' + itemId);
-            const btn = document.getElementById('history-btn-' + itemId);
-
-            if (historyDiv.classList.contains('hidden')) {
-                historyDiv.classList.remove('hidden');
-                btn.textContent = 'Ocultar historial';
-            } else {
-                historyDiv.classList.add('hidden');
-                btn.textContent = 'Ver historial';
-            }
-        }
-    </script>
 </div>

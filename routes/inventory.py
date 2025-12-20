@@ -142,28 +142,54 @@ async def get_context(
 """
 
 
-@router.get("/api/item/{item_id}/history", response_class=HTMLResponse)
-async def get_item_history(
+@router.get("/item/{item_id}/history-view", response_class=HTMLResponse)
+async def get_item_history_view(
     request: Request,
     item_id: int,
+    user: User = Depends(verify_credentials),
+    session: Session = Depends(get_session),
+):
+    """Vista completa de historial con infinite scroll"""
+    item = session.get(Item, item_id)
+    if not item:
+        return templates.TemplateResponse(
+            "components/error.html",
+            {"request": request, "message": "Item no encontrado"}
+        )
+
+    return templates.TemplateResponse(
+        "components/history_view.html",
+        {"request": request, "item": item}
+    )
+
+
+@router.get("/api/item/{item_id}/history", response_class=HTMLResponse)
+async def get_item_history_paginated(
+    request: Request,
+    item_id: int,
+    offset: int = Query(0),
     limit: int = Query(HISTORY_RECORDS_PER_ITEM),
     user: User = Depends(verify_credentials),
     session: Session = Depends(get_session),
 ):
     """
-    Retorna historial de un item con before/after calculado
+    Retorna historial paginado de un item con before/after calculado
     """
-    history = session.exec(
+    # Obtener todos los registros para calcular before correctamente
+    all_history = session.exec(
         select(ItemHistory)
         .where(ItemHistory.item_id == item_id)
         .order_by(ItemHistory.changed_at.desc())
-        .limit(limit)
     ).all()
+
+    # Paginar
+    history = all_history[offset:offset + limit]
 
     # Calcular before/after
     history_data = []
     for i, record in enumerate(history):
-        before = history[i+1].quantity if i+1 < len(history) else 0
+        actual_index = offset + i
+        before = all_history[actual_index + 1].quantity if actual_index + 1 < len(all_history) else 0
         after = record.quantity
         history_data.append({
             "before": before,
@@ -172,7 +198,15 @@ async def get_item_history(
             "date_human": humanize_time(record.changed_at)
         })
 
+    has_more = (offset + limit) < len(all_history)
+
     return templates.TemplateResponse(
-        "components/item_history.html",
-        {"request": request, "history": history_data}
+        "components/history_list.html",
+        {
+            "request": request,
+            "history": history_data,
+            "item_id": item_id,
+            "offset": offset + limit,
+            "has_more": has_more
+        }
     )

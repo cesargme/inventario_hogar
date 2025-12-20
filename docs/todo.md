@@ -35,3 +35,4 @@ Click en "Ver" nuevamente → Cambia instantáneamente SIN spinner, mostrando lo
 - [ ] no depender en ms dealy en lazy loads quizas, q sea sequencial
 - [ ] al borrar q muestre confirmación
 - [ ] poder borrar tras mover todo en el mismo proceso
+- [ ] quisas optimizar prompt con tree selection para ahorrar tokens
