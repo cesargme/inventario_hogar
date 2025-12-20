@@ -7,11 +7,12 @@ from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select, func
 
 from auth.basic import verify_credentials
-from config.settings import ITEMS_PER_PAGE
+from config.settings import ITEMS_PER_PAGE, HISTORY_RECORDS_PER_ITEM
 from database.db import get_session
-from database.models import Item, Section, User
+from database.models import Item, ItemHistory, Section, User
 from database.queries import find_item_by_name, find_section_by_name
 from utils.serializers import serialize_items_for_template
+from utils.time import humanize_time
 
 router = APIRouter(prefix="/inventory", tags=["inventory"])
 templates = Jinja2Templates(directory="templates")
@@ -139,3 +140,39 @@ async def get_context(
     console.log('Contexto del inventario cargado:', window.inventoryContext);
 </script>
 """
+
+
+@router.get("/api/item/{item_id}/history", response_class=HTMLResponse)
+async def get_item_history(
+    request: Request,
+    item_id: int,
+    limit: int = Query(HISTORY_RECORDS_PER_ITEM),
+    user: User = Depends(verify_credentials),
+    session: Session = Depends(get_session),
+):
+    """
+    Retorna historial de un item con before/after calculado
+    """
+    history = session.exec(
+        select(ItemHistory)
+        .where(ItemHistory.item_id == item_id)
+        .order_by(ItemHistory.changed_at.desc())
+        .limit(limit)
+    ).all()
+
+    # Calcular before/after
+    history_data = []
+    for i, record in enumerate(history):
+        before = history[i+1].quantity if i+1 < len(history) else 0
+        after = record.quantity
+        history_data.append({
+            "before": before,
+            "after": after,
+            "changed_at": record.changed_at,
+            "date_human": humanize_time(record.changed_at)
+        })
+
+    return templates.TemplateResponse(
+        "components/item_history.html",
+        {"request": request, "history": history_data}
+    )

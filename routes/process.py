@@ -7,7 +7,7 @@ from sqlmodel import Session
 
 from auth.basic import verify_credentials
 from database.db import get_session
-from database.models import Item, Section, User
+from database.models import Item, ItemHistory, Section, User
 from database.queries import find_item_by_name, find_section_by_name
 from utils.llm import prompt
 from utils.parsers import parse_llm_commands
@@ -109,6 +109,10 @@ async def process_text(
                     old_qty = item.quantity
                     item.quantity += cmd["quantity"]
                     item.updated_at = datetime.utcnow()
+
+                    # Guardar en historial
+                    session.add(ItemHistory(item_id=item.id, quantity=item.quantity))
+
                     changes.append(
                         f"Agregado: {item.name} {old_qty} → {item.quantity} {item.unit}"
                     )
@@ -121,6 +125,10 @@ async def process_text(
                     old_qty = item.quantity
                     item.quantity = cmd["quantity"]
                     item.updated_at = datetime.utcnow()
+
+                    # Guardar en historial
+                    session.add(ItemHistory(item_id=item.id, quantity=item.quantity))
+
                     changes.append(
                         f"Actualizado: {item.name} {old_qty} → {item.quantity} {item.unit}"
                     )
@@ -144,6 +152,10 @@ async def process_text(
                     old_qty = existing_item.quantity
                     existing_item.quantity = cmd.get("quantity", existing_item.quantity)
                     existing_item.updated_at = datetime.utcnow()
+
+                    # Guardar en historial
+                    session.add(ItemHistory(item_id=existing_item.id, quantity=existing_item.quantity))
+
                     changes.append(
                         f"Actualizado: {existing_item.emoji} {existing_item.name} {old_qty} → {existing_item.quantity} {existing_item.unit}"
                     )
@@ -171,6 +183,11 @@ async def process_text(
                         section_id=section.id,
                     )
                     session.add(new_item)
+                    session.flush()  # Para obtener el ID del nuevo item
+
+                    # Guardar en historial
+                    session.add(ItemHistory(item_id=new_item.id, quantity=new_item.quantity))
+
                     changes.append(
                         f"Creado: {new_item.emoji} {new_item.name} ({new_item.quantity} {new_item.unit}) en {section.name}"
                     )
