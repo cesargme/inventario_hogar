@@ -35,18 +35,18 @@ Click en "Ver" nuevamente → Cambia instantáneamente SIN spinner, mostrando lo
 - [ ] cambiar de nombre de seccion
 - [ ] optimizar menos uso de memoria ver donde se usa mas memoria
 - [ ] lazy load inteligiente de historial: solo actualizar del nuevo, si es q ya esta cargado. tambien de items...
-- [ ] acelerar el query y esto
-- [ ] optimizar con cacheado el filtrado segun seccion
-- [ ] al borrar q muestre confirmación
-- [ ] poder borrar tras mover todo en el mismo proceso
+- [x] acelerar el query y esto
 - [ ] quisas optimizar prompt con tree selection para ahorrar tokens
 - [ ] cambiar de unidad... umbral y tmb mostrar umbral
 - [x] infinite scrolling a partir de cuanto? htmx del 5 item cargar 10
 - [ ] corregir eliminar item por su historial no funciona creo.
 
+- [ ] al borrar q muestre confirmación
+- [ ] optimizar con cacheado el filtrado segun seccion
 - [ ] lazy-loading.js muy complejo, hacerlo mas mantenible.
 - [ ] hacer lazy load si cambio en servidor (artutor por ejemplo cambio)
 - [ ] context: can i cache serverside the list of items names and sections? to avoid select * what's it called?
 - [ ] is my current cache client side? if so is it bad? or the current data is nto that compromising
 - [ ] eliminar seccion solo si esta vacio, muevelos!
 - [ ] no depender en ms dealy en lazy loads quizas, q sea sequencial
+- [ ] poder borrar tras mover todo en el mismo proceso
