@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+import jinjax
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -34,6 +35,14 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Templates Jinja2
 templates = Jinja2Templates(directory="templates")
+
+# JinjaX: Integrar con el entorno Jinja de FastAPI
+templates.env.add_extension(jinjax.JinjaX)
+catalog = jinjax.Catalog(jinja_env=templates.env)
+catalog.add_folder("components")
+
+# Exponer catalog como global para usarlo en templates Jinja tradicionales
+templates.env.globals["catalog"] = catalog
 
 # Registrar routers
 app.include_router(inventory.router)
