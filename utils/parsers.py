@@ -16,6 +16,10 @@ def parse_llm_commands(llm_response: str) -> list[dict[str, Any]]:
         # Intentar parsear JSON directo
         commands = json.loads(llm_response)
 
+        # Si es un objeto único, convertirlo a lista
+        if isinstance(commands, dict):
+            commands = [commands]
+
         if not isinstance(commands, list):
             return []
 

@@ -32,6 +32,10 @@ Debes devolver un array JSON con los comandos a ejecutar. Formato:
 Acciones disponibles:
 - create_item: SIEMPRE usa esta acción para cualquier item mencionado. Si el item ya existe, se actualizará automáticamente.
 - create_section: crea nueva sección (infiere emoji)
+- move_item: mueve un item a otra sección. Formato: {"action": "move_item", "item": "leche", "to_section": "refrigerador"}
+- change_emoji: cambia emoji de item o sección. Formato: {"action": "change_emoji", "target_type": "item", "target_name": "leche", "emoji": "🥛"} o {"action": "change_emoji", "target_type": "section", "target_name": "refrigerador", "emoji": "❄️"}
+- delete_item: elimina un item. Formato: {"action": "delete_item", "item": "leche"}
+- delete_section: elimina una sección. Formato: {"action": "delete_section", "section": "almacen 1"}
 
 Reglas:
 - SIEMPRE usa "create_item" para todos los items mencionados
@@ -68,20 +72,26 @@ async def process_text(
 
     # Llamar LLM con contexto
     llm_input = f"{SYSTEM_PROMPT}{context_info}\n\nUsuario dice: {text}"
+    print(f"[LLM] Input: {llm_input}")
     llm_response = prompt(llm_input)
+    print(f"[LLM] Response: {llm_response}")
 
     # Parsear comandos
     commands = parse_llm_commands(llm_response)
+    print(f"[LLM] Parsed commands: {commands}")
 
     if not commands:
+        error_msg = "No se pudieron entender los comandos. Intenta ser más específico."
+        if llm_response:
+            error_msg = f"Error parseando respuesta del LLM. Ver logs del servidor para detalles."
+            print(f"[ERROR] No se pudieron parsear comandos de la respuesta: {llm_response}")
+
         return templates.TemplateResponse(
             "components/feedback.html",
             {
                 "request": request,
                 "changes": [],
-                "errors": [
-                    "No se pudieron entender los comandos. Intenta ser más específico."
-                ],
+                "errors": [error_msg],
             },
         )
 
@@ -178,6 +188,83 @@ async def process_text(
                     changes.append(f"Creada sección: {new_section.emoji} {new_section.name}")
                 else:
                     errors.append(f"Sección '{section_name}' ya existe")
+
+            elif action == "move_item":
+                item = find_item_by_name(session, cmd["item"])
+                if not item:
+                    errors.append(f"Item '{cmd['item']}' no existe")
+                else:
+                    section_name = cmd.get("to_section", "")
+                    new_section = find_section_by_name(session, section_name)
+
+                    if not new_section:
+                        errors.append(f"Sección '{section_name}' no existe")
+                    else:
+                        old_section = item.section.name
+                        item.section_id = new_section.id
+                        item.updated_at = datetime.utcnow()
+                        changes.append(
+                            f"Movido: {item.emoji} {item.name} de {old_section} → {new_section.name}"
+                        )
+
+            elif action == "change_emoji":
+                target_type = cmd.get("target_type")  # "item" o "section"
+                target_name = cmd.get("target_name", "")
+                new_emoji = cmd.get("emoji", "")
+
+                if target_type == "item":
+                    item = find_item_by_name(session, target_name)
+                    if item:
+                        old_emoji = item.emoji
+                        item.emoji = new_emoji
+                        item.updated_at = datetime.utcnow()
+                        changes.append(f"Emoji cambiado: {item.name} {old_emoji} → {new_emoji}")
+                    else:
+                        errors.append(f"Item '{target_name}' no existe")
+
+                elif target_type == "section":
+                    section = find_section_by_name(session, target_name)
+                    if section:
+                        old_emoji = section.emoji
+                        section.emoji = new_emoji
+                        changes.append(f"Emoji cambiado: {section.name} {old_emoji} → {new_emoji}")
+                    else:
+                        errors.append(f"Sección '{target_name}' no existe")
+                else:
+                    errors.append(f"target_type '{target_type}' inválido (debe ser 'item' o 'section')")
+
+            elif action == "delete_item":
+                item = find_item_by_name(session, cmd["item"])
+                if item:
+                    item_name = item.name
+                    item_emoji = item.emoji
+                    session.delete(item)
+                    changes.append(f"Eliminado: {item_emoji} {item_name}")
+                else:
+                    errors.append(f"Item '{cmd['item']}' no existe")
+
+            elif action == "delete_section":
+                section_name = cmd.get("section", "")
+                section = find_section_by_name(session, section_name)
+
+                if not section:
+                    errors.append(f"Sección '{section_name}' no existe")
+                else:
+                    # Verificar si tiene items
+                    from sqlmodel import select
+                    items_in_section = session.exec(
+                        select(Item).where(Item.section_id == section.id)
+                    ).all()
+
+                    if items_in_section:
+                        errors.append(
+                            f"No se puede eliminar '{section.name}' porque contiene {len(items_in_section)} items. Mueve o elimina los items primero."
+                        )
+                    else:
+                        section_name_display = section.name
+                        section_emoji_display = section.emoji
+                        session.delete(section)
+                        changes.append(f"Eliminada sección: {section_emoji_display} {section_name_display}")
 
         except Exception as e:
             errors.append(f"Error en comando {cmd}: {str(e)}")

@@ -30,3 +30,5 @@ Click en "Ver" nuevamente → Cambia instantáneamente SIN spinner, mostrando lo
 - [ ] eliminar seccion solo si esta vacio, muevelos!
 - [ ] acelerar el query y esto
 - [ ] optimizar con cacheado el filtrado segun seccion
+- [ ] al borrar q muestre confirmación
+- [ ] poder borrar tras mover todo en el mismo proceso
