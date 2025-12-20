@@ -22,7 +22,17 @@ def prompt(message):
             ]
         })
     )
-    return response.json()['choices'][0]['message']['content']
+
+    result = response.json()
+
+    # Manejo de errores de la API
+    if "error" in result:
+        raise ValueError(f"OpenRouter API Error: {result['error']}")
+
+    if "choices" not in result or len(result["choices"]) == 0:
+        raise ValueError(f"Unexpected API response: {result}")
+
+    return result['choices'][0]['message']['content']
 
 
 if __name__ == "__main__":
